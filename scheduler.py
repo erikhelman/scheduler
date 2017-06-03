@@ -97,7 +97,7 @@ def do_the_schedule(students):
                         session_info = {'firstName': s['firstName'],
                                         'lastName': s['lastName'],
                                         'month': session[10],
-                                        'date': session[11],
+                                        'date': session[13],
                                         'dayOFTheWeek': day,
                                         'level': s['level'],
                                         'startTimeHour': session[4],
