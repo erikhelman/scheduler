@@ -1,2 +1,10 @@
 __pycache__/
 .idea
+deactivate/
+bin/
+include/
+lib/
+pip-selfcheck.json
+result.json
+*.pyc
+client_secrets.json

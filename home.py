@@ -17,6 +17,7 @@ def schedulerJSON():
 
 @app.route('/scheduler')
 def schedule_display():
+    #display the schedule
     return render_template('schedule.html', my_string="Wheeeee!", my_list=[0, 1, 2, 3, 4, 5])
 
 
