@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <body>
+    <h3>See All Students (<a href = "{{ url_for('get_students') }}">See Students
+         </a>)</h3>
+
+        <form action = "{{ request.path }}" method = "post">
+            <label for = "student_fname">First Name</label><br>
+            <input type = "text" name = "fname" placeholder = "First Name" /><br>
+
+            <label for = "student_lname">Last Name</label><br>
+            <input type = "text" name = "lname" placeholder = "Last Name" /><br>
+
+            <label for = "email">Email Address</label><br>
+            <input type = "text" name = "email" placeholder = "Email Address" /><br>
+
+            <label for = "street_addr">Address</label><br>
+            <textarea name = "street_addr" placeholder = "Street Address"></textarea><br>
+
+            <label for = "gender">Gender</label><br>
+            <input type = "text" name = "gender" placeholder = "Gender (M or F)" /><br>
+
+            <label for = "city">City</label><br>
+            <input type = "text" name = "city" placeholder = "City" /><br>
+
+            <label for = "postal">Postal Code</label><br>
+            <input type = "text" name = "postal" placeholder = "A1A 1A1" /><br>
+
+            <label for = "current_level">Current Level</label><br>
+            <input type = "text" name = "curr_level" placeholder = "Current Level" /><br>
+
+            <label for = "prev_level">Previous Level</label><br>
+            <input type = "text" name = "prev_level" placeholder = "Previous Level" /><br>
+            
+            <input type = "submit" value = "Submit" />
+        </form>
+
+    </body>
+</html>
