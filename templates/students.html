@@ -1,48 +1,65 @@
 <!DOCTYPE html>
 <html lang = "en">
-   <head></head>
-   <body>
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <title>Display students</title>
+  </head>
+
+  <body>
 
 
-      <hr/>
+    <hr>
       {%- for message in get_flashed_messages() %}
-         {{ message }}
+      {{ message }}
       {%- endfor %}
 
-      <h3>Students (<a href = "{{ url_for('add_students') }}">Add Student
-         </a>)</h3>
+    <h3>Students (<a href = "{{ url_for('add_students') }}">Add Student</a>)</h3>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Gender</th>
+        <th>Email</th>
+        <th>Street Address</th>
+        <th>City</th>
+        <th>Province</th>
+        <th>Postal Code</th>
+        <th>Phone Type</th>
+        <th>Area Code</th>
+        <th>Phone Number</th>
+        </tr>
+      </thead>
 
-      <table>
-         <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Gender</th>
-                <th>Email</th>
-                <th>City</th>
-                <th>Address</th>
-                <th>Postal Code</th>
-                <th>Current Level</th>
-                <th>Previous Level</th>
-            </tr>
-         </thead>
+      <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{ student.fname }}</td>
+            <td>{{ student.lname }}</td>
+            <td>{{ student.gender }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.street_address }}</td>
+            <td>{{ student.city }}</td>
+            <td>{{ student.province }}</td>
+            <td>{{ student.postal }}</td>
+            <td>{{ student.phone_type }}</td>
+            <td>{{ student.area_code }}</td>
+            <td>{{ student.phone_number }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-         <tbody>
-            {% for student in students %}
-                <tr>
-                    <td>{{ student.student_fname }}</td>
-                    <td>{{ student.student_lname }}</td>
-                    <td>{{ student.gender }}</td>
-                    <td>{{ student.email }}</td>
-                    <td>{{ student.city }}</td>
-                    <td>{{ student.street_addr }}</td>
-                    <td>{{ student.postal }}</td>
-                    <td>{{ student.current_level }}</td>
-                    <td>{{ student.prev_level }}</td>
-                </tr>
-            {% endfor %}
-         </tbody>
-      </table>
-
-   </body>
+  </body>
 </html>
