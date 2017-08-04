@@ -17,45 +17,98 @@
   </head>
 
   <body>
+    <header>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6 col-sm-6 col-xs-6">
+            <img class= "img-responsive" src="http://www.championswimming.ca/images/logo.png">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <hr>
+          </div>
+        </div>
+      </div>
+    </header>
 
+    <nav>
+      <div class="container-fluid">
+        <ul class="nav nav-pills">
+          <li role="presentation"><a href="/add">Home</a></li>
+          <li role="presentation" class="active"><a href="/search">Search</a></li>
+          <li role="presentation"><a href="/delete">Delete</a></li>
+        </ul>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <hr>
+        </div>
+      </div>
 
+    </nav>
+
+    <form action = "{{ request.path }}" method = "post">
+        <label for = "search_string">Search</label><br>
+        <input type = "text" name = "search_string" placeholder = "First or Last Name" /><br>
+        <input type = "submit" value = "Submit" />
+    </form>
     <hr>
+    <!-- <hr>
       {%- for message in get_flashed_messages() %}
       {{ message }}
       {%- endfor %}
 
-    <h3>Students (<a href = "{{ url_for('add_students') }}">Add Student</a>)</h3>
+    <h3>Students (<a href = "{{ url_for('add_students') }}">Add Student</a>)</h3>-->
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
         <th>First Name</th>
         <th>Last Name</th>
         <th>Gender</th>
+        <th>DOB</th>
+        <th>Level</th>
+        <th>Class Length</th>
         <th>Email</th>
-        <th>Street Address</th>
         <th>City</th>
         <th>Province</th>
+        <th>Street</th>
         <th>Postal Code</th>
-        <th>Phone Type</th>
         <th>Area Code</th>
         <th>Phone Number</th>
+        <th>Dr.</th>
+        <th>Area Code</th>
+        <th>Dr. Phone #</th>
+        <th>OHIP</th>
+        <th>Medical</th>
+        <th>Allergies</th>
+        <th>How did you find us?</th>
+        <th>Referral</th>
         </tr>
       </thead>
 
       <tbody>
         {% for student in students %}
           <tr>
-            <td>{{ student.fname }}</td>
-            <td>{{ student.lname }}</td>
-            <td>{{ student.gender }}</td>
-            <td>{{ student.email }}</td>
-            <td>{{ student.street_address }}</td>
-            <td>{{ student.city }}</td>
-            <td>{{ student.province }}</td>
-            <td>{{ student.postal }}</td>
-            <td>{{ student.phone_type }}</td>
-            <td>{{ student.area_code }}</td>
-            <td>{{ student.phone_number }}</td>
+            <td>{{ student.Students.fname }}</td>
+            <td>{{ student.Students.lname }}</td>
+            <td>{{ student.Students.gender }}</td>
+            <td>{{ student.Students.dob }}</td>
+            <td>{{ student.Students.level }}</td>
+            <td>{{ student.Students.class_length }}</td>
+            <td>{{ student.Students.info.email }}</td>
+            <td>{{ student.Students.info.city }}</td>
+            <td>{{ student.Students.info.province }}</td>
+            <td>{{ student.Students.info.street_address }}</td>
+            <td>{{ student.Students.info.postal }}</td>
+            <td>{{ student.Students.info.area_code }}</td>
+            <td>{{ student.Students.info.phone_number }}</td>
+            <td>{{ student.Students.info.dr_name }}</td>
+            <td>{{ student.Students.info.dr_area_code }}</td>
+            <td>{{ student.Students.info.dr_phone }}</td>
+            <td>{{ student.Students.info.ohip }}</td>
+            <td>{{ student.Students.info.medical_conditions }}</td>
+            <td>{{ student.Students.info.allergies_meds }}</td>
+            <td>{{ student.Students.info.how_found }}</td>
+            <td>{{ student.Students.info.referral }}</td>
           </tr>
         {% endfor %}
       </tbody>
