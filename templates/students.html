@@ -61,11 +61,14 @@
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
+        <th>Status</th>
+        <th>Customer ID</th>
         <th>First Name</th>
         <th>Last Name</th>
         <th>Gender</th>
         <th>DOB</th>
         <th>Level</th>
+        <th>Class Type</th>
         <th>Class Length</th>
         <th>Email</th>
         <th>City</th>
@@ -73,10 +76,14 @@
         <th>Street</th>
         <th>Postal Code</th>
         <th>Area Code</th>
-        <th>Phone Number</th>
+        <th>Phone</th>
+        <th>Parent</th>
+        <th>Emergency Contact</th>
+        <th>Area Code</th>
+        <th>Phone</th>
         <th>Dr.</th>
         <th>Area Code</th>
-        <th>Dr. Phone #</th>
+        <th>Phone</th>
         <th>OHIP</th>
         <th>Medical</th>
         <th>Allergies</th>
@@ -88,11 +95,14 @@
       <tbody>
         {% for student in students %}
           <tr>
+            <td>{{ student.Students.status }}</td>
+            <td>{{ student.Students.info.customer_id }}</td>
             <td>{{ student.Students.fname }}</td>
             <td>{{ student.Students.lname }}</td>
             <td>{{ student.Students.gender }}</td>
             <td>{{ student.Students.dob }}</td>
             <td>{{ student.Students.level }}</td>
+            <td>{{ student.Students.class_type }}</td>
             <td>{{ student.Students.class_length }}</td>
             <td>{{ student.Students.info.email }}</td>
             <td>{{ student.Students.info.city }}</td>
@@ -101,6 +111,10 @@
             <td>{{ student.Students.info.postal }}</td>
             <td>{{ student.Students.info.area_code }}</td>
             <td>{{ student.Students.info.phone_number }}</td>
+            <td>{{ student.Students.info.parent_name }}</td>
+            <td>{{ student.Students.info.emerg_contact }}</td>
+            <td>{{ student.Students.info.emerg_area }}</td>
+            <td>{{ student.Students.info.emerg_phone }}</td>
             <td>{{ student.Students.info.dr_name }}</td>
             <td>{{ student.Students.info.dr_area_code }}</td>
             <td>{{ student.Students.info.dr_phone }}</td>

@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, render_template, request, url_for, redirect, flash
 import scheduler
 from flask_sqlalchemy import SQLAlchemy
+import os
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 
@@ -14,28 +17,37 @@ class Students(db.Model):
     lname = db.Column(db.String(50))
     gender = db.Column(db.String(1))
     dob = db.Column(db.Date)
-    level = db.Column(db.String)
+    level = db.Column(db.String(10))
+    class_type = db.Column(db.String(30))
     class_length = db.Column(db.Integer)
+    status = db.Column(db.String(20))
     info = db.relationship('StudentInfo', uselist=False, backref='students')
     feedback = db.relationship('Feedback', backref="students")
 
-    def __init__(self, fname, lname, gender, dob, level, class_length):
+    def __init__(self, fname, lname, gender, dob, level, class_type, class_length, status):
         self.fname = fname
         self.lname = lname
         self.gender = gender
         self.dob = dob
         self.level = level
+        self.class_type = class_type
         self.class_length = class_length
+        self.status = status
 
 class StudentInfo(db.Model):
     ___tablename___ = 'student_info'
     info_id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+    customer_id = db.Column(db.Integer)
     email = db.Column(db.String(50))
     city = db.Column(db.String(50))
     province = db.Column(db.String(2))
     street_address = db.Column(db.String(200))
     postal = db.Column(db.String(6))
+    parent_name = db.Column(db.String(40))
+    emerg_contact = db.Column(db.String(40))
+    emerg_area = db.Column(db.Integer)
+    emerg_phone = db.Column(db.Integer)
     area_code = db.Column(db.Integer)
     phone_number = db.Column(db.Integer)
     dr_name = db.Column(db.String(50))
@@ -47,13 +59,18 @@ class StudentInfo(db.Model):
     how_found = db.Column(db.String(50))
     referral = db.Column(db.String(50))
 
-    def __init__(self, email, city, province, street_address, postal, area_code, phone_number, dr_name,
-              dr_area_code, dr_phone, ohip, medical_conditions, allergies_meds, how_found, referral):
+    def __init__(self, customer_id, email, city, province, street_address, postal, parent_name, emerg_contact, emerg_area, emerg_phone,
+                 area_code, phone_number, dr_name, dr_area_code, dr_phone, ohip, medical_conditions, allergies_meds, how_found, referral):
+        self.customer_id = customer_id
         self.email = email
         self.city = city
         self.province = province
         self.street_address = street_address
         self.postal = postal
+        self.parent_name = parent_name
+        self.emerg_contact = emerg_contact
+        self.emerg_area = emerg_area
+        self.emerg_phone = emerg_phone
         self.area_code = area_code
         self.phone_number = phone_number
         self.dr_name = dr_name
@@ -124,13 +141,20 @@ def add_students():
                            request.form['gender'],
                            request.form['dob'],
                            request.form['level'],
-                           request.form['classLength'])
+                           request.form['classType'],
+                           request.form['classLength'],
+                           request.form['customerStatus'])
 
-        student.info = StudentInfo(request.form['email'],
+        student.info = StudentInfo(request.form['customerID'],
+                                   request.form['email'],
                                    request.form['city'],
                                    request.form['province'],
                                    request.form['streetAddress'],
                                    request.form['postal'],
+                                   request.form['parentName'],
+                                   request.form['emergencyContact'],
+                                   request.form['emergencyAreaCode'],
+                                   request.form['emergencyPhone'],
                                    request.form['areaCode'],
                                    request.form['phoneNumber'],
                                    request.form['drName'],

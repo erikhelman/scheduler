@@ -15,13 +15,7 @@
   </head>
 
   <body>
-  <!--<div class = "container-fluid">
-    <div class = "row">
-      <div class = "col-md-12 col-sm-12">
-          <h3>See All Students (<a href = "{{ url_for('get_students') }}">See Students</a>)</h3>
-      </div>
-    </div>
-  </div>-->
+  <!--TODO add status -->
 
           <!-- main area -->
   <header>
@@ -56,6 +50,20 @@
     <div class="row">
       <form method="post" role="form">
         <div class="form-group required">
+          <div class="row">
+            <div class="col-md-2 sol-sm-2 col-xs-2">
+              <label for="customerID">Customer ID</label>
+              <input type="text" class="form-control" name="customerID">
+            </div>
+            <div class="col-md-2 sol-sm-2 col-xs-2">
+              <label for="customerStatus">Customer Status</label>
+              <select class="form-control" name="customerStatus">
+                <option>Active</option>
+                <option>Inactive</option>
+                <option>Pending Payment</option>
+              </select>
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-2 sol-sm-2 col-xs-2">
               <label for="fname">First Name</label>
@@ -125,6 +133,26 @@
           </div>
           <div class="row">
             <div class="col-md-4 col-sm-4 col-xs-4">
+              <label for="parentName">Parent or Guardian Name</label>
+              <input type="text" class="form-control" name="parentName">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 col-sm-4 col-xs-4">
+              <label for="emergencyContact">Emergency Contact Name</label>
+              <input type="tel" class="form-control" name="emergencyContact">
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-2">
+              <label for="emergencyAreaCode">Emergency Contact Area Code</label>
+              <input type="tel" class="form-control" name="emergencyAreaCode">
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-2">
+              <label for="emergencyPhone">Emergency Contact Phone Number</label>
+              <input type="tel" class="form-control" name="emergencyPhone">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 col-sm-4 col-xs-4">
               <label for="dr_name">Doctor's Name</label>
               <input type="text" class="form-control" name="drName">
             </div>
@@ -180,7 +208,14 @@
                 <option>60</option>
               </select>
             </div>
-
+            <div class="col-md-2 col-sm-2 col-xs-2">
+              <label for="classType">Class type</label>
+              <select class="form-control" name="classType">
+                <option>Group (max 4 students)</option>
+                <option>Semi-Private (max 2 students)</option>
+                <option>Private (individual lessons)</option>
+              </select>
+            </div>
           </div>
           <div class="checkbox">
             <label>
@@ -205,6 +240,13 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div class ="row">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" id="additionalStudents">Do you have additional students to register?
+                </label>
               </div>
             </div>
             <div class="row">
