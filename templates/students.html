@@ -36,7 +36,7 @@
       <div class="container-fluid">
         <ul class="nav nav-pills">
           <li role="presentation"><a href="/add">Home</a></li>
-          <li role="presentation" class="active"><a href="/search">Search</a></li>
+          <li role="presentation" class="active"><a href="/students">Search</a></li>
           <li role="presentation"><a href="/delete">Delete</a></li>
         </ul>
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -48,7 +48,7 @@
 
     <form action = "{{ request.path }}" method = "post">
         <label for = "search_string">Search</label><br>
-        <input type = "text" name = "search_string" placeholder = "First or Last Name" /><br>
+        <input type = "text" name = "search_string" placeholder = "First or Last Name, * for All" /><br>
         <input type = "submit" value = "Submit" />
     </form>
     <hr>
