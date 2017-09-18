@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, render_template, request, url_for, redirect, flash
+from security import pwd_context
 import scheduler
 from flask_sqlalchemy import SQLAlchemy
 import os
+
 
 
 app = Flask(__name__)
@@ -9,6 +11,21 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+class Users(db.Model):
+    ___tablename___ = 'students'
+    id = db.Column('id', db.Integer, primary_key = True)
+    public_id = db.Column(db.String(50), unique = True)
+    username = db.Column(db.String(50))
+    password = db.Column(db.String(100))
+    active = db.Column(db.Boolean)
+    role = db.Column(db.String(5))
+
+    def __init__(self, public_id, username, password, active, role):
+        self.public_id = public_id
+        self.username = username
+        self.password = password
+        self.active = active
+        self.role = role
 
 class Students(db.Model):
     ___tablename___ = 'students'
@@ -96,6 +113,29 @@ class Feedback(db.Model):
 def show_all():
     return render_template('main.html')
 
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        user = Users.query.filter(Users.username == request.form['username']).first()
+        if user and pwd_context.verify(request.form['pwd'],user.password):
+            return render_template('login.html')
+        return render_template('login.html')
+
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        user = Users(request.form['username'],
+                     pwd_context.hash(request.form['pwd']),
+                     active=True,
+                     role='user')
+
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 @app.route('/scheduler/JSON')
 def scheduler_json():
@@ -176,5 +216,5 @@ def add_students():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    db.create_all()
+    app.run()
+    #db.create_all()
