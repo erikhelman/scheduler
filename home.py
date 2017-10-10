@@ -1,5 +1,8 @@
-from flask import Flask, jsonify, render_template, request, url_for, redirect, flash
+from flask import Flask, jsonify, render_template, request, url_for, redirect, json
 from security import pwd_context
+import uuid
+import datetime
+import jwt
 import scheduler
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -116,36 +119,99 @@ def show_all():
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
-        user = Users.query.filter(Users.username == request.form['username']).first()
-        if user and pwd_context.verify(request.form['pwd'],user.password):
-            return render_template('login.html')
-        return render_template('login.html')
 
-    return render_template('login.html')
+        data = json.loads(request.data.decode('utf8'))
+        name = data['name']
+        password = data['password']
+
+        user = Users.query.filter(Users.username == name).first()
+        if user and pwd_context.verify(password,user.password):
+
+            payload = {'user_id' : user.public_id, 'role' : 'user'}
+            token = str(jwt.encode(payload, 'secret', algorithm='HS256'))
+            return ('{"isAuthenticated": "true", "token": "' + token+ '"}')
+
+        return '{"isAuthenticated": "false"}'
+
+    return 'not triggered' #render_template('login.html')
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'POST':
-        user = Users(request.form['username'],
-                     pwd_context.hash(request.form['pwd']),
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+        name = data['name']
+        password = data['password']
+
+        user = Users(public_id=uuid.uuid4(),
+                     username=name,
+                     password=pwd_context.hash(password),
                      active=True,
                      role='user')
 
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('login'))
+        return '{ successfullyRegistered: true }'
 
     return render_template('register.html')
 
-@app.route('/scheduler/JSON')
-def scheduler_json():
-    schedule = scheduler.do_the_schedule(scheduler.get_students())
+@app.route('/schedule', methods= ['GET'])
+def get_schedule():
+    if request.method == 'GET':
 
-    return jsonify(schedule)
+        header = request.headers.get('Authorization').split(' ')
+        with open('testfile.txt','w') as f:
+            for x in header:
 
+                f.write(x + '\n')
+                f.write(str(len(header)))
 
+        if len(header) == 2:
+
+            if header[0] == 'Bearer':
+
+                try:
+                    token = jwt.decode(header[1], 'secret', algorithms='HS256')
+                except jwt.ExpiredSignatureError:
+                    return "Token has expired, please log in again"
+                except (jwt.DecodeError, jwt.InvalidTokenError):
+                    return "Invalid token provided"
+                else:
+                    with open('testfile.txt','w') as f:
+                        f.write(token['user_id'])
+                    return "Successfully decoded!"
+            return 'Incorrect Authorization Type'
+
+            schedule = scheduler.do_the_schedule(scheduler.get_students())
+
+            return jsonify(schedule)
+        return 'Authentication error'
+    return 'Nothing happened'
 @app.route('/students', methods=['GET','POST'])
 def get_students():
+    if request.method == 'GET':
+        students = db.session.query(Students, StudentInfo).join(StudentInfo).all()
+        userdata = {}
+
+        for s in students:
+            #userdata['id']=str(s.Students.id)
+            userdata[str(s.Students.id)] = {}
+            userdata[str(s.Students.id)]['fname']=s.Students.fname
+            userdata[str(s.Students.id)]['lname'] = s.Students.lname
+            userdata[str(s.Students.id)]['email']=s.StudentInfo.email
+            userdata[str(s.Students.id)]['dob']=s.Students.dob
+            userdata[str(s.Students.id)]['street'] = s.StudentInfo.street_address
+            userdata[str(s.Students.id)]['city']=s.StudentInfo.city
+            userdata[str(s.Students.id)]['province']=s.StudentInfo.province
+
+
+        with open('testfile.txt','w') as f:
+            json.dump(userdata, f)
+
+
+
+        return jsonify(userdata)
+
     if request.method == 'POST':
         search_string = request.form['search_string']
         if search_string == '*':
@@ -213,6 +279,7 @@ def add_students():
         return redirect(url_for('get_students'))
 
     return render_template('add.html')
+
 
 
 if __name__ == "__main__":

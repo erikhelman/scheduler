@@ -1,0 +1,28 @@
+{
+  "name": "scheduler-fe",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:5000",
+  "dependencies": {
+    "axios": "^0.16.2",
+    "material-ui": "^0.19.3",
+    "react": "^16.0.0",
+    "react-big-calendar": "^0.16.1",
+    "react-dnd": "^2.5.4",
+    "react-dnd-html5-backend": "^2.5.4",
+    "react-dom": "^16.0.0",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.0.14"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "react-scripts start",
+    "server": "cd .. && export FLASK_DEBUG=1 && export FLASK_APP=home.py && flask run",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.0"
+  }
+}
