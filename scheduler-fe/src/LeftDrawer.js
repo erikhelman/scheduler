@@ -32,7 +32,7 @@ const LeftDrawer = (props) => {
           </div>
           <MenuItem
             style={styles.menuItem}
-            containerElement={<Link to='/profile' />}>
+            containerElement={<Link to='/main/profile' />}>
             Profile
           </MenuItem>
           <MenuItem

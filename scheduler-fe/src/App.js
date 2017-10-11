@@ -17,7 +17,7 @@ class App extends Component {
           <Route exact path="/" component={LoginPage} />
           <Route path="/registration" component={RegistrationPage} />
           <Route path="/main" component={MainPage} />
-          {/*}<MainPage />*/}
+
         </div>
       </MuiThemeProvider>
     );

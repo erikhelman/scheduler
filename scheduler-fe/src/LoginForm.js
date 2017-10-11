@@ -18,7 +18,7 @@ const LoginForm = ({
 
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div className="field-line">
+      <div>
         <TextField
           floatingLabelText="User Name"
           name="name"
@@ -28,7 +28,7 @@ const LoginForm = ({
         />
       </div>
 
-      <div className="field-line">
+      <div>
         <TextField
           floatingLabelText="Password"
           type="password"

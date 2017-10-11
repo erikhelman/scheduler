@@ -110,13 +110,11 @@ class Feedback(db.Model):
     feedback = db.Column(db.JSON)
 
 
-
-
 @app.route('/')
 def show_all():
     return render_template('main.html')
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
 
@@ -133,9 +131,9 @@ def login():
 
         return '{"isAuthenticated": "false"}'
 
-    return 'not triggered' #render_template('login.html')
+    return ''
 
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         payload = request.data.decode('utf8')
@@ -151,9 +149,9 @@ def register():
 
         db.session.add(user)
         db.session.commit()
-        return '{ successfullyRegistered: true }'
+        return '{ isRegistered: true }'
 
-    return render_template('register.html')
+    return ''
 
 @app.route('/schedule', methods= ['GET'])
 def get_schedule():
@@ -182,19 +180,18 @@ def get_schedule():
                     return "Successfully decoded!"
             return 'Incorrect Authorization Type'
 
-            schedule = scheduler.do_the_schedule(scheduler.get_students())
-
-            return jsonify(schedule)
+            #schedule = scheduler.do_the_schedule(scheduler.get_students())
+            #return jsonify(schedule)
         return 'Authentication error'
     return 'Nothing happened'
-@app.route('/students', methods=['GET','POST'])
-def get_students():
+
+@app.route('/profile', methods=['GET','POST'])
+def get_profile():
     if request.method == 'GET':
         students = db.session.query(Students, StudentInfo).join(StudentInfo).all()
         userdata = {}
 
         for s in students:
-            #userdata['id']=str(s.Students.id)
             userdata[str(s.Students.id)] = {}
             userdata[str(s.Students.id)]['fname']=s.Students.fname
             userdata[str(s.Students.id)]['lname'] = s.Students.lname
@@ -204,6 +201,38 @@ def get_students():
             userdata[str(s.Students.id)]['city']=s.StudentInfo.city
             userdata[str(s.Students.id)]['province']=s.StudentInfo.province
 
+        with open('testfile.txt','w') as f:
+            json.dump(userdata, f)
+
+
+
+        return jsonify(userdata)
+
+    if request.method == 'POST':
+        search_string = request.form['search_string']
+        if search_string == '*':
+            return render_template('students.html',
+                                   students=db.session.query(Students, StudentInfo).join(StudentInfo).all())
+        else:
+            return render_template('students.html', students = db.session.query(Students, StudentInfo).join(StudentInfo).filter((Students.lname == search_string)|(Students.fname == search_string)))
+            #Students.query.filter((Students.lname == search_string)|(Students.fname == search_string)).all())
+    return render_template('students.html')
+
+@app.route('/students', methods=['GET','POST'])
+def get_students():
+    if request.method == 'GET':
+        students = db.session.query(Students, StudentInfo).join(StudentInfo).all()
+        userdata = {}
+
+        for s in students:
+            userdata[str(s.Students.id)] = {}
+            userdata[str(s.Students.id)]['fname']=s.Students.fname
+            userdata[str(s.Students.id)]['lname'] = s.Students.lname
+            userdata[str(s.Students.id)]['email']=s.StudentInfo.email
+            userdata[str(s.Students.id)]['dob']=s.Students.dob
+            userdata[str(s.Students.id)]['street'] = s.StudentInfo.street_address
+            userdata[str(s.Students.id)]['city']=s.StudentInfo.city
+            userdata[str(s.Students.id)]['province']=s.StudentInfo.province
 
         with open('testfile.txt','w') as f:
             json.dump(userdata, f)
@@ -239,7 +268,7 @@ def search_students():
     return render_template('search.html')
 
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/add', methods=['POST'])
 def add_students():
     if request.method == 'POST':
         student = Students(request.form['fname'],
@@ -275,7 +304,6 @@ def add_students():
         db.session.add(student)
         db.session.commit()
 
-        #flash('Record was successfully added')
         return redirect(url_for('get_students'))
 
     return render_template('add.html')

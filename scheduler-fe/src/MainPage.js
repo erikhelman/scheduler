@@ -54,7 +54,7 @@ class MainPage extends React.Component {
           <LeftDrawer navDrawerOpen={navDrawerOpen} />
 
           <div className="container">
-            <Route path="/profile" component={ProfilePage} />
+            <Route path="/main/profile" component={ProfilePage} />
             <Route path="/users" component={StudentPage} />
           </div>
 

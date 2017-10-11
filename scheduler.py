@@ -105,37 +105,11 @@ def do_the_schedule(students):
 
                         schedule['sessions'].append(session_info)
                         sessionFound = True
-                        #print(session_info)
 
     with open('result.json', 'w') as fp:
         json.dump(schedule, fp, ensure_ascii=True)
 
     return schedule
-
-    '''
-    gauth = GoogleAuth()
-    # Try to load saved client credentials
-    gauth.LoadCredentialsFile("mycreds.txt")
-    if gauth.credentials is None:
-        # Authenticate if they're not there
-        gauth.LocalWebserverAuth()
-    elif gauth.access_token_expired:
-        # Refresh them if expired
-        gauth.Refresh()
-    else:
-        # Initialize the saved creds
-        gauth.Authorize()
-    # Save the current credentials to a file
-    gauth.SaveCredentialsFile("mycreds.txt")
-
-    drive = GoogleDrive(gauth)
-
-    gfile = drive.CreateFile({'title': 'schedule.json',
-                              'parents':
-                                  [{'kind': 'drive#fileLink', 'id': '0B2HKxpqiSZhEQldVMGtmVHpnQWs'}]})
-    gfile.SetContentFile('result.json')
-    gfile.Upload()  # Upload it
-    '''
 
 
 def display_schedule(students):
