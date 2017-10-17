@@ -8,8 +8,14 @@ class ProfilePage extends React.Component {
 
     this.state = {
       errors: {},
-      name: '',
-      password: '',
+      token: sessionStorage.getItem("token"),
+      fname: '',
+      lname: '',
+      city: '',
+      province: '',
+      street: '',
+      postal: '',
+      phone: '',
       email: ''
     };
 
@@ -17,19 +23,58 @@ class ProfilePage extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
+  componentDidMount () {
+
+    var token = this.state.token;
+
+    axios.post('/profile', {
+      token: token
+    })
+    .then(response => {
+
+      this.setState({email: (response.data.email != null ? response.data.email : '')});
+      this.setState({fname: (response.data.fname != null ? response.data.fname : '')});
+      this.setState({lname: (response.data.lname != undefined ? response.data.lname : '')});
+      this.setState({city: (response.data.city != undefined ? response.data.city : '')});
+      this.setState({province: (response.data.province != undefined ? response.data.province : '')});
+      this.setState({street: (response.data.street != undefined ? response.data.street : '')});
+      this.setState({postal: (response.data.postal != undefined ? response.data.postal : '')});
+      this.setState({phone: (response.data.phone != undefined ? response.data.phone : '')});
+
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  }
+
   handleSubmit(event) {
 
     event.preventDefault();
 
-    const name = this.state.name;
-    const password = this.state.password;
+    var fname = this.state.fname;
+    var lname = this.state.lname;
+    var city = this.state.city;
+    var street = this.state.street;
+    var province = this.state.province;
+    var postal = this.state.postal;
+    var phone = this.state.phone;
+    var email = this.state.email;
+    var token = this.state.token;
 
-    axios.post('/login', {
-      name: name,
-      password: password
+    axios.post('/update_profile', {
+      token: token,
+      fname: fname,
+      lname: lname,
+      city: city,
+      street: street,
+      province: province,
+      postal: postal,
+      phone: phone,
+      email: email
     })
-    .then(function (response) {
-      sessionStorage.setItem('user_id', response);
+    .then(response => {
+
     })
     .catch(function (error) {
       console.log(error);
@@ -41,14 +86,20 @@ class ProfilePage extends React.Component {
     this.setState({ [event.target.name] : event.target.value});
     console.log(this.state.name);
   }
+
   render() {
     return (
       <ProfileForm
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
         errors={this.state.errors}
-        name={this.state.name}
-        password={this.state.password}
+        fname={this.state.fname}
+        lname={this.state.lname}
+        city={this.state.city}
+        street={this.state.street}
+        province={this.state.province}
+        postal={this.state.postal}
+        phone={this.state.phone}
         email={this.state.email}
       />
     );

@@ -4,6 +4,7 @@ import LoginPage from './LoginPage';
 import RegistrationPage from './RegistrationPage';
 import ProfilePage from './ProfilePage';
 import MainPage from './MainPage';
+import StudentPage from './StudentPage';
 
 const Routes = () => (
   <main>
@@ -12,6 +13,7 @@ const Routes = () => (
       <Route exact path='/main' component={MainPage}/>
       <Route exact path='/registration' component={RegistrationPage}/>
       <Route exact path='/profile' component={ProfilePage}/>
+      <Route exact path='/student' component={StudentPage}/>
     </Switch>
   </main>
 )

@@ -18,29 +18,29 @@ const LoginForm = ({
 
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div>
+      <div style = {{position: 'relative'}}>
         <TextField
           floatingLabelText="User Name"
           name="name"
           errorText={errors.name}
           onChange={onChange}
-          value={name}
+          value={name} style={{marginLeft: '40%', width:200}}
         />
       </div>
 
-      <div>
+      <div style = {{position: 'relative'}}>
         <TextField
           floatingLabelText="Password"
           type="password"
           name="password"
           onChange={onChange}
           errorText={errors.password}
-          value={password}
+          value={password} style={{marginLeft: '40%', width:200}}
         />
       </div>
 
-      <div className="button-line">
-        <RaisedButton type="submit" label="Log In" primary />
+      <div className="button-line" style = {{position: 'relative'}}>
+        <RaisedButton type="submit" label="Log In" primary style={{marginLeft: '40%', width:200}}/>
       </div>
 
       <CardText>Don't have an account? <Link to={'/registration'}>Create one</Link></CardText>

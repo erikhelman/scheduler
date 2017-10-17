@@ -19,39 +19,39 @@ const RegistrationForm = ({
 
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div className="field-line">
+      <div className="field-line" style={{position:'relative'}}>
         <TextField
           floatingLabelText="Name"
           name="name"
           errorText={errors.name}
           onChange={onChange}
-          value={name}
+          value={name} style={{marginLeft: '40%', width:200}}
         />
       </div>
 
-      <div className="field-line">
+      <div className="field-line" style={{position:'relative'}}>
         <TextField
           floatingLabelText="Email"
           name="email"
           errorText={errors.email}
           onChange={onChange}
-          value={email}
+          value={email} style={{marginLeft: '40%', width:200}}
         />
       </div>
 
-      <div className="field-line">
+      <div className="field-line" style={{position:'relative'}}>
         <TextField
           floatingLabelText="Password"
           type="password"
           name="password"
           onChange={onChange}
           errorText={errors.password}
-          value={password}
+          value={password} style={{marginLeft: '40%', width:200}}
         />
       </div>
 
-      <div className="button-line">
-        <RaisedButton type="submit" label="Register" primary />
+      <div className="button-line" style={{position:'relative'}}>
+        <RaisedButton type="submit" label="Register" primary style={{marginLeft: '40%', width:200}} />
       </div>
 
       <CardText>Already have an account? <Link to={'/'}>Log in</Link></CardText>

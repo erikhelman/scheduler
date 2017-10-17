@@ -2,8 +2,6 @@ import React from 'react';
 import LoginForm from './LoginForm';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
-import MainPage from './MainPage';
-import PropTypes from 'prop-types';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -26,22 +24,22 @@ class LoginPage extends React.Component {
     const name = this.state.name;
     const password = this.state.password;
     var self=this;
-    const status = this.state.loggedIn;
 
     axios.post('/login', {
       name: name,
       password: password
     })
     .then(function (response) {
-      console.log(response.status)
-      if (response.status == 200) {
-        console.log(response.data.hasOwnProperty('isAuthenticated'));
+
+      if (response.status === 200) {
+
         if (response.data.hasOwnProperty("isAuthenticated")) {
-          console.log(response.data.isAuthenticated);
-          if (response.data.isAuthenticated == "true") {
-              console.log('success')
-              sessionStorage.setItem('user_id', response);
+
+          if (response.data.isAuthenticated === "true") {
+
+              sessionStorage.setItem("token", response.data["token"]);
               self.setState({loggedIn: true});
+
           } else {
             console.log('Invalid username and/or password.')
           }
@@ -51,16 +49,15 @@ class LoginPage extends React.Component {
       } else {
           console.log("An error has occurred. Please try to login again.");
         }
+
     })
     .catch(function (error) {
       console.log(error);
     });
-
   }
 
   handleInputChange(event) {
     this.setState({ [event.target.name] : event.target.value});
-    console.log(this.state.name);
   }
   render() {
     if (this.state.loggedIn){

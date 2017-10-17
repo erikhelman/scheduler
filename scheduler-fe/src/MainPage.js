@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Header from './Header';
 import LeftDrawer from './LeftDrawer';
 import withWidth, {LARGE, SMALL} from 'material-ui/utils/withWidth';
 import ThemeDefault from './themeDefault';
 import ProfilePage from './ProfilePage';
-import { Route, Link } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import StudentPage from './StudentPage';
 
 
@@ -55,7 +54,7 @@ class MainPage extends React.Component {
 
           <div className="container">
             <Route path="/main/profile" component={ProfilePage} />
-            <Route path="/users" component={StudentPage} />
+            <Route path="/main/student" component={StudentPage} />
           </div>
 
         </div>

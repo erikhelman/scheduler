@@ -37,8 +37,8 @@ const LeftDrawer = (props) => {
           </MenuItem>
           <MenuItem
             style={styles.menuItem}
-            containerElement={<Link to='/calendar' />}>
-            Calendar
+            containerElement={<Link to='/main/student' />}>
+            Student
           </MenuItem>
         </Drawer>
     );
