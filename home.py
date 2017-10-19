@@ -8,8 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import update
 import os
 
-
-
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
