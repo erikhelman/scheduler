@@ -17,7 +17,8 @@ class StudentPage extends React.Component {
       classtype: '',
       classlength: '',
       preferredtime: '',
-      email: ''
+      email: '',
+      loggedIn: ''
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);

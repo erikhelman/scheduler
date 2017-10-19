@@ -225,6 +225,66 @@ def get_students():
             #Students.query.filter((Students.lname == search_string)|(Students.fname == search_string)).all())
     return render_template('students.html')
 
+@app.route('/all_students', methods=['POST'])
+def get_all_students():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        try:
+            jwt.decode(data['token'], 'secret', algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+
+            all_students = Students.query.all()
+            userdata = {}
+            userdata['students'] = []
+
+            for s in all_students:
+
+                new_student = {'student_id': s.student_id,
+                               'fname': s.fname,
+                               'lname': s.lname,
+                               'email': s.email,
+                               'dob': s.dob,
+                               'phone': s.phone_number,
+                               'gender': s.gender,
+                               'level': s.level,
+                               'class_type': s.class_type,
+                               'class_length': s.class_length,
+                               'status': s.status,
+                               'emerg_contact': s.emerg_contact,
+                               'emerg_phone': s.emerg_phone}
+
+                userdata['students'].append(new_student)
+
+            with open('testfile.txt', 'w') as f:
+                json.dump(userdata, f)
+
+                '''userdata[str(s.student_id)] = {}
+                userdata[str(s.student_id)]['fname']=s.fname
+                userdata[str(s.student_id)]['lname'] = s.lname
+                userdata[str(s.student_id)]['email']=s.email
+                userdata[str(s.student_id)]['dob']=s.dob
+                userdata[str(s.student_id)]['phone'] = s.phone_number
+                userdata[str(s.student_id)]['gender']=s.gender
+                userdata[str(s.student_id)]['level']=s.level
+                userdata[str(s.student_id)]['class_type']=s.class_type
+                userdata[str(s.student_id)]['class_length']=s.class_length
+                userdata[str(s.student_id)]['status'] = s.status
+                userdata[str(s.student_id)]['emerg_contact']=s.emerg_contact
+                userdata[str(s.student_id)]['emerg_phone']=s.emerg_phone'''
+
+            return jsonify(userdata)
+
+
 @app.route('/delete', methods=['GET', 'POST'])
 def delete_students():
     if request.method == 'POST':

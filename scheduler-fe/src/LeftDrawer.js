@@ -40,6 +40,11 @@ const LeftDrawer = (props) => {
             containerElement={<Link to='/main/student' />}>
             Student
           </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/all_students' />}>
+            All Students
+          </MenuItem>
         </Drawer>
     );
   };

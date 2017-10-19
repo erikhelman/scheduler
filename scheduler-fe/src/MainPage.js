@@ -8,6 +8,7 @@ import ThemeDefault from './themeDefault';
 import ProfilePage from './ProfilePage';
 import { Route } from 'react-router-dom';
 import StudentPage from './StudentPage';
+import AllStudentsPage from './AllStudentsPage';
 
 
 class MainPage extends React.Component {
@@ -55,6 +56,7 @@ class MainPage extends React.Component {
           <div className="container">
             <Route path="/main/profile" component={ProfilePage} />
             <Route path="/main/student" component={StudentPage} />
+            <Route path="/main/all_students" component={AllStudentsPage} />
           </div>
 
         </div>
