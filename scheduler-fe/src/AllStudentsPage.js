@@ -11,35 +11,39 @@ class AllStudentsPage extends React.Component {
       errors: {},
       token: sessionStorage.getItem("token"),
       students: [],
-      loggedIn: ''
+      loggedIn: '',
+      selected: [1]
     };
-    var students = [
-      [{id: 1},{name: 'name1'}],
-      [{id: 2},{name: 'name2'}]
-    ]
+
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-  }
+  };
+
+  isSelected = (index) => {
+    return this.state.selected.indexOf(index) !== -1;
+  };
+
+  handleRowSelection = (selectedRows) => {
+    this.setState({
+      selected: selectedRows
+    });
+  };
 
   componentDidMount () {
 
     var token = this.state.token;
-    var st = []
+    var self = this;
 
     axios.post('/all_students', {
       token: token
     })
     .then(response => {
-      st = response.data.students;
-      console.log('response data');
-      console.log(response.data.students);
+      self.setState({students: response.data.students});
     })
     .catch(function (error) {
       console.log(error);
     });
-    this.setState({students: st});
-    console.log(st);
-    console.log(this.state.students);
+
   }
 
   handleSubmit(event) {
@@ -54,13 +58,18 @@ class AllStudentsPage extends React.Component {
   }
 
   render() {
+
+    let students = this.state.students;
+
     return (
-      <AllStudentsForm
-        onSubmit={this.handleSubmit}
-        onChange={this.handleInputChange}
-        errors={this.state.errors}
-        students={this.state.students}
-      />
+        <div>
+          <AllStudentsForm
+            onSubmit={this.handleSubmit}
+            onChange={this.handleInputChange}
+            errors={this.state.errors}
+            students={this.state.students}
+          />
+        </div>
     );
   }
 }
