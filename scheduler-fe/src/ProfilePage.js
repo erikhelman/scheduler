@@ -34,12 +34,12 @@ class ProfilePage extends React.Component {
 
       this.setState({email: (response.data.email != null ? response.data.email : '')});
       this.setState({fname: (response.data.fname != null ? response.data.fname : '')});
-      this.setState({lname: (response.data.lname != undefined ? response.data.lname : '')});
-      this.setState({city: (response.data.city != undefined ? response.data.city : '')});
-      this.setState({province: (response.data.province != undefined ? response.data.province : '')});
-      this.setState({street: (response.data.street != undefined ? response.data.street : '')});
-      this.setState({postal: (response.data.postal != undefined ? response.data.postal : '')});
-      this.setState({phone: (response.data.phone != undefined ? response.data.phone : '')});
+      this.setState({lname: (response.data.lname != null ? response.data.lname : '')});
+      this.setState({city: (response.data.city != null ? response.data.city : '')});
+      this.setState({province: (response.data.province != null ? response.data.province : '')});
+      this.setState({street: (response.data.street != null ? response.data.street : '')});
+      this.setState({postal: (response.data.postal != null ? response.data.postal : '')});
+      this.setState({phone: (response.data.phone != null ? response.data.phone : '')});
 
     })
     .catch(function (error) {

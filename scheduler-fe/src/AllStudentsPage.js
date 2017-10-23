@@ -1,5 +1,4 @@
 import React from 'react';
-import ProfileForm from './ProfileForm';
 import axios from 'axios';
 import AllStudentsForm from './AllStudentsForm';
 
@@ -59,7 +58,6 @@ class AllStudentsPage extends React.Component {
 
   render() {
 
-    let students = this.state.students;
 
     return (
         <div>

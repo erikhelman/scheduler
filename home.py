@@ -190,38 +190,72 @@ def update_profile():
 
     return ''
 
-@app.route('/students', methods=['GET','POST'])
+@app.route('/students', methods=['POST'])
 def get_students():
-    if request.method == 'GET':
-        students = Students.query.all()
-        userdata = {}
-
-        for s in students:
-            userdata[str(s.student_id)] = {}
-            userdata[str(s.student_id)]['fname']=s.fname
-            userdata[str(s.student_id)]['lname'] = s.lname
-            userdata[str(s.student_id)]['email']=s.email
-            userdata[str(s.student_id)]['dob']=s.dob
-            userdata[str(s.student_id)]['phone'] = s.phone_number
-            userdata[str(s.student_id)]['gender']=s.gender
-            userdata[str(s.student_id)]['level']=s.level
-            userdata[str(s.student_id)]['class_type']=s.class_type
-            userdata[str(s.student_id)]['class_length']=s.class_length
-            userdata[str(s.student_id)]['status'] = s.status
-            userdata[str(s.student_id)]['emerg_contact']=s.emerg_contact
-            userdata[str(s.student_id)]['emerg_phone']=s.emerg_phone
-
-        return jsonify(userdata)
-
     if request.method == 'POST':
-        search_string = request.form['search_string']
-        if search_string == '*':
-            return render_template('students.html',
-                                   students=db.session.query(Students, StudentInfo).join(StudentInfo).all())
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open ('testfile.txt','w') as f:
+            json.dump(data, f)
+
+        try:
+            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
         else:
-            return render_template('students.html', students = db.session.query(Students, StudentInfo).join(StudentInfo).filter((Students.lname == search_string)|(Students.fname == search_string)))
-            #Students.query.filter((Students.lname == search_string)|(Students.fname == search_string)).all())
-    return render_template('students.html')
+            user_id = token['user_id']
+            user = Users.query.filter(Users.public_id == user_id).first()
+
+
+
+            for s in user.students:
+
+                s.fname = data['fname']
+                s.lname = data['lname']
+                s.city = data['city']
+                s.province = data['province']
+                s.street = data['street']
+                s.postal = data['postal']
+                s.phone = data['phone']
+                s.email = data['email']
+
+            db.session.add(user)
+            db.session.commit()
+
+
+            '''student_data = {}
+            student_data['students'] = []
+
+            for s in user.students:
+
+                new_student = {'student_id': s.student_id,
+                               'fname': s.fname,
+                               'lname': s.lname,
+                               'email': s.email,
+                               'dob': s.dob,
+                               'phone': s.phone_number,
+                               'gender': s.gender,
+                               'level': s.level,
+                               'class_type': s.class_type,
+                               'class_length': s.class_length,
+                               'status': s.status,
+                               'emerg_contact': s.emerg_contact,
+                               'emerg_phone': s.emerg_phone}
+
+                student_data['students'].append(new_student)
+            '''
+
+            return '' #jsonify(student_data)
+
+
+
+    return ''
 
 @app.route('/all_students', methods=['POST'])
 def get_all_students():
@@ -262,23 +296,6 @@ def get_all_students():
                                'emerg_phone': s.emerg_phone}
 
                 userdata['students'].append(new_student)
-
-            with open('testfile.txt', 'w') as f:
-                json.dump(userdata, f)
-
-                '''userdata[str(s.student_id)] = {}
-                userdata[str(s.student_id)]['fname']=s.fname
-                userdata[str(s.student_id)]['lname'] = s.lname
-                userdata[str(s.student_id)]['email']=s.email
-                userdata[str(s.student_id)]['dob']=s.dob
-                userdata[str(s.student_id)]['phone'] = s.phone_number
-                userdata[str(s.student_id)]['gender']=s.gender
-                userdata[str(s.student_id)]['level']=s.level
-                userdata[str(s.student_id)]['class_type']=s.class_type
-                userdata[str(s.student_id)]['class_length']=s.class_length
-                userdata[str(s.student_id)]['status'] = s.status
-                userdata[str(s.student_id)]['emerg_contact']=s.emerg_contact
-                userdata[str(s.student_id)]['emerg_phone']=s.emerg_phone'''
 
             return jsonify(userdata)
 
