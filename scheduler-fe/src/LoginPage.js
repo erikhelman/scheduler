@@ -25,7 +25,7 @@ class LoginPage extends React.Component {
     const password = this.state.password;
     var self=this;
 
-    axios.post('/login', {
+    axios.post('https://glacial-sierra-90432.herokuapp.com/login', {
       name: name,
       password: password
     })
