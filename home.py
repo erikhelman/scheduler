@@ -9,7 +9,7 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/": {"origins": "https://sheltered-dusk-62691.herokuapp.com/"}, r"/": {"supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
