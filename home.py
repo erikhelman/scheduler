@@ -5,10 +5,11 @@ import datetime
 import jwt
 import scheduler
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import update
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "https://sheltered-dusk-62691.herokuapp.com/"}})
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)

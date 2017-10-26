@@ -53,14 +53,14 @@ class MainPage extends React.Component {
       }
     };
 
-    if (this.state.loggedIn !== true){
+    {/*if (this.state.loggedIn !== true){
       return <Redirect to={{
         pathname: '/',
         state: { loggedIn: this.state.loggedIn }
 
       }}/>;
-    }
-    
+    }*/}
+
     return (
       <MuiThemeProvider muiTheme={ThemeDefault}>
         <div>

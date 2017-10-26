@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardText } from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
+import {blue600} from 'material-ui/styles/colors'
 
 const RegistrationForm = ({
   onSubmit,
@@ -19,45 +20,76 @@ const RegistrationForm = ({
 
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div className="field-line" style={{position:'relative'}}>
+      <div className="field-line" >
         <TextField
           floatingLabelText="Name"
           name="name"
           errorText={errors.name}
           onChange={onChange}
-          value={name} style={{marginLeft: '40%', width:200}}
+          value={name}
+          style={customStyle.textfields}
+          underlineFocusStyle={customStyle.colorStyle}
+          floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
 
-      <div className="field-line" style={{position:'relative'}}>
+      <div className="field-line" >
         <TextField
           floatingLabelText="Email"
           name="email"
           errorText={errors.email}
           onChange={onChange}
-          value={email} style={{marginLeft: '40%', width:200}}
+          value={email}
+          style={customStyle.textfields}
+          underlineFocusStyle={customStyle.colorStyle}
+          floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
 
-      <div className="field-line" style={{position:'relative'}}>
+      <div className="field-line" >
         <TextField
           floatingLabelText="Password"
           type="password"
           name="password"
           onChange={onChange}
           errorText={errors.password}
-          value={password} style={{marginLeft: '40%', width:200}}
+          value={password}
+          style={customStyle.textfields}
+          underlineFocusStyle={customStyle.colorStyle}
+          floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
 
-      <div className="button-line" style={{position:'relative'}}>
-        <RaisedButton type="submit" label="Register" primary style={{marginLeft: '40%', width:200}} />
+      <div className="button-line" >
+        <RaisedButton
+          type="submit"
+          label="Register"
+          style={customStyle.general}
+          backgroundColor = '#1E88E5'
+          labelColor = '#FFFFFF'
+        />
       </div>
 
       <CardText>Already have an account? <Link to={'/'}>Log in</Link></CardText>
     </form>
   </Card>
 );
+
+const customStyle = {
+  textfields: {
+    position: 'relative',
+    width: '20rem',
+    marginLeft: '40%',
+  },
+  general: {
+    position: 'relative',
+    width: '20rem',
+    marginLeft: '40%'
+  },
+  colorStyle: {
+    color:blue600
+  },
+};
 
 RegistrationForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

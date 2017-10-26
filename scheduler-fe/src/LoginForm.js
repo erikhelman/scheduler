@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardText } from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
+import {blue600} from 'material-ui/styles/colors'
 
 const LoginForm = ({
   onSubmit,
@@ -12,41 +13,70 @@ const LoginForm = ({
   name,
   password
 }) => (
-  <Card className="container">
+  <Card className="container" >
     <form action="/" onSubmit={onSubmit}>
       <h2 className="card-heading">Login</h2>
 
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div style = {{position: 'relative'}}>
+      <div >
         <TextField
           floatingLabelText="User Name"
           name="name"
           errorText={errors.name}
           onChange={onChange}
-          value={name} style={{marginLeft: '40%', width:200}}
+          value={name}
+          style={customStyle.textfields}
+          underlineFocusStyle={customStyle.colorStyle}
+          floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
 
-      <div style = {{position: 'relative'}}>
+      <div >
         <TextField
           floatingLabelText="Password"
           type="password"
           name="password"
           onChange={onChange}
           errorText={errors.password}
-          value={password} style={{marginLeft: '40%', width:200}}
+          value={password}
+          style={customStyle.textfields}
+          underlineFocusStyle= {customStyle.colorStyle}
+          floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
 
-      <div className="button-line" style = {{position: 'relative'}}>
-        <RaisedButton type="submit" label="Log In" primary style={{marginLeft: '40%', width:200}}/>
+      <div className="button-line" >
+        <RaisedButton
+          type="submit"
+          label="Log In"
+          style={customStyle.general}
+          backgroundColor = '#1E88E5'
+          labelColor = '#FFFFFF'
+          />
       </div>
 
       <CardText>Don't have an account? <Link to={'/registration'}>Create one</Link></CardText>
+
     </form>
   </Card>
 );
+
+const customStyle = {
+  textfields: {
+    position: 'relative',
+    width: '20rem',
+    marginLeft: '40%',
+  },
+  general: {
+    position: 'relative',
+    width: '20rem',
+    marginLeft: '40%'
+  },
+  colorStyle: {
+    color:blue600
+  },
+};
 
 LoginForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
