@@ -12,6 +12,7 @@ app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
+url = "https://glacial-sierra-90432.herokuapp.com/"
 
 class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
@@ -212,25 +213,8 @@ def get_students():
             user_id = token['user_id']
             user = Users.query.filter(Users.public_id == user_id).first()
 
-
-
-            for s in user.students:
-
-                s.fname = data['fname']
-                s.lname = data['lname']
-                s.city = data['city']
-                s.province = data['province']
-                s.street = data['street']
-                s.postal = data['postal']
-                s.phone = data['phone']
-                s.email = data['email']
-
-            db.session.add(user)
-            db.session.commit()
-
-
-            '''student_data = {}
-            student_data['students'] = []
+            userdata = {}
+            userdata['students'] = []
 
             for s in user.students:
 
@@ -248,12 +232,51 @@ def get_students():
                                'emerg_contact': s.emerg_contact,
                                'emerg_phone': s.emerg_phone}
 
-                student_data['students'].append(new_student)
-            '''
+                userdata['students'].append(new_student)
 
-            return '' #jsonify(student_data)
+            return jsonify(userdata)
 
+    return ''
 
+@app.route('/update_students', methods=['POST'])
+def update_students():
+    if request.method == 'POST':
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        try:
+            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+            user_id = token['user_id']
+            user = Users.query.filter(Users.public_id == user_id).first()
+
+            if data['dob'] == '':
+                data['dob'] = None
+
+            if data['class_length'] == '':
+                data['class_length'] = None
+
+            user.students[0].fname = data['fname']
+            user.students[0].lname = data['lname']
+            user.students[0].gender = data['gender']
+            user.students[0].dob = data['dob']
+
+            user.students[0].level = data['level']
+            user.students[0].class_type = data['class_type']
+            user.students[0].class_length = data['class_length']
+            user.students[0].status = data['status']
+
+            db.session.add(user)
+            db.session.commit()
+
+            return "{studentUpdate: true}"
 
     return ''
 

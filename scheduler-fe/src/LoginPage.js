@@ -61,7 +61,11 @@ class LoginPage extends React.Component {
   }
   render() {
     if (this.state.loggedIn){
-      return <Redirect to='/main' />;
+      return <Redirect to={{
+        pathname: '/main',
+        state: { loggedIn: this.state.loggedIn }
+
+      }}/>;
     }
     return (
       <LoginForm

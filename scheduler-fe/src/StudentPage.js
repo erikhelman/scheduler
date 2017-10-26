@@ -15,7 +15,9 @@ class StudentPage extends React.Component {
       dob: '',
       level: '',
       class_type: '',
-      class_length: ''
+      class_length: '',
+      status: '',
+      students: []
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -30,14 +32,7 @@ class StudentPage extends React.Component {
       token: token
     })
     .then(response => {
-      this.setState({fname: (response.data.fname != null ? response.data.fname : '')});
-      this.setState({lname: (response.data.lname != null ? response.data.lname : '')});
-      this.setState({gender: (response.data.gender != null ? response.data.gender : '')});
-      this.setState({dob: (response.data.dob != null ? response.data.dob : '')});
-      this.setState({level: (response.data.level != null ? response.data.level : '')});
-      this.setState({class_type: (response.data.class_type != null ? response.data.class_type : '')});
-      this.setState({class_length: (response.data.class_length != null ? response.data.class_length : '')});
-
+      this.setState({students: response.data.students});
     })
     .catch(function (error) {
       console.log(error);
@@ -56,6 +51,7 @@ class StudentPage extends React.Component {
     var level = this.state.level;
     var class_type = this.state.class_type;
     var class_length = this.state.class_length;
+    var status = this.state.status;
     var token = this.state.token;
 
     axios.post('/update_students', {
@@ -66,7 +62,8 @@ class StudentPage extends React.Component {
       dob: dob,
       level: level,
       class_type: class_type,
-      class_length: class_length
+      class_length: class_length,
+      status: status
     })
     .then(response => {
 
@@ -83,7 +80,10 @@ class StudentPage extends React.Component {
   }
 
   render() {
+    console.log(this.state.students);
+
     return (
+
       <StudentForm
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
@@ -95,6 +95,8 @@ class StudentPage extends React.Component {
         level={this.state.level}
         class_type={this.state.class_type}
         class_length={this.state.class_length}
+        status={this.state.status}
+        students={this.state.students}
       />
     );
   }

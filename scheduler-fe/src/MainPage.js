@@ -9,6 +9,7 @@ import ProfilePage from './ProfilePage';
 import { Route } from 'react-router-dom';
 import StudentPage from './StudentPage';
 import AllStudentsPage from './AllStudentsPage';
+import { Redirect } from 'react-router-dom';
 
 
 class MainPage extends React.Component {
@@ -16,8 +17,14 @@ class MainPage extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      navDrawerOpen: false
+      navDrawerOpen: false,
+      loggedIn: false
     };
+  }
+
+  componentWillMount () {
+
+    this.setState({loggedIn: (this.props.location.state != null ? this.props.location.state : false)});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -45,6 +52,15 @@ class MainPage extends React.Component {
         paddingLeft: navDrawerOpen && this.props.width !== SMALL ? paddingLeftDrawerOpen : 0
       }
     };
+
+    if (this.state.loggedIn !== true){
+      return <Redirect to={{
+        pathname: '/',
+        state: { loggedIn: this.state.loggedIn }
+
+      }}/>;
+    }
+    
     return (
       <MuiThemeProvider muiTheme={ThemeDefault}>
         <div>

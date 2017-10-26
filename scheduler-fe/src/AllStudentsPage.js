@@ -58,7 +58,6 @@ class AllStudentsPage extends React.Component {
 
   render() {
 
-
     return (
         <div>
           <AllStudentsForm
