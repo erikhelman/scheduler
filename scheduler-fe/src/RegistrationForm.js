@@ -28,7 +28,7 @@ const RegistrationForm = ({
           onChange={onChange}
           value={name}
           style={customStyle.textfields}
-          underlineFocusStyle={customStyle.colorStyle}
+          underlineFocusStyle={customStyle.underlineStyle}
           floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
@@ -41,7 +41,7 @@ const RegistrationForm = ({
           onChange={onChange}
           value={email}
           style={customStyle.textfields}
-          underlineFocusStyle={customStyle.colorStyle}
+          underlineFocusStyle={customStyle.underlineStyle}
           floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
@@ -55,7 +55,7 @@ const RegistrationForm = ({
           errorText={errors.password}
           value={password}
           style={customStyle.textfields}
-          underlineFocusStyle={customStyle.colorStyle}
+          underlineFocusStyle={customStyle.underlineStyle}
           floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
@@ -88,6 +88,9 @@ const customStyle = {
   },
   colorStyle: {
     color:blue600
+  },
+  underlineStyle: {
+    borderColor:blue600
   },
 };
 

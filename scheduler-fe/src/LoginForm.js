@@ -27,7 +27,7 @@ const LoginForm = ({
           onChange={onChange}
           value={name}
           style={customStyle.textfields}
-          underlineFocusStyle={customStyle.colorStyle}
+          underlineFocusStyle={customStyle.underlineStyle}
           floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
@@ -41,7 +41,7 @@ const LoginForm = ({
           errorText={errors.password}
           value={password}
           style={customStyle.textfields}
-          underlineFocusStyle= {customStyle.colorStyle}
+          underlineFocusStyle={customStyle.underlineStyle}
           floatingLabelFocusStyle={customStyle.colorStyle}
         />
       </div>
@@ -66,7 +66,7 @@ const customStyle = {
   textfields: {
     position: 'relative',
     width: '20rem',
-    marginLeft: '40%',
+    marginLeft: '40%'
   },
   general: {
     position: 'relative',
@@ -75,6 +75,9 @@ const customStyle = {
   },
   colorStyle: {
     color:blue600
+  },
+  underlineStyle: {
+    borderColor:blue600
   },
 };
 

@@ -25,7 +25,7 @@ class RegistrationPage extends React.Component {
     const password = this.state.password;
     const name = this.state.name;
 
-    axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
+    axios.post('/register', {
       name: name,
       password: password,
       email: email

@@ -2,29 +2,24 @@ import React from 'react';
 import StudentForm from './StudentForm';
 import axios from 'axios';
 
+
 class StudentPage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      errors: {},
+      headerHeight: '',
       token: sessionStorage.getItem("token"),
-      fname: '',
-      lname: '',
-      gender: '',
-      dob: '',
-      level: '',
-      class_type: '',
-      class_length: '',
-      status: '',
-      students: []
+      students: [{ student_id: '',
+                  fname: '' ,
+                  lname: ''}]
     };
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   componentDidMount () {
+
+    this.setState({headerHeight: document.getElementById('header').clientHeight});
+
 
     var token = this.state.token;
 
@@ -32,7 +27,9 @@ class StudentPage extends React.Component {
       token: token
     })
     .then(response => {
-      this.setState({students: response.data.students});
+
+      this.setState({students: (response.data.students != null ? response.data.students : '')});
+
     })
     .catch(function (error) {
       console.log(error);
@@ -40,30 +37,42 @@ class StudentPage extends React.Component {
 
   }
 
-  handleSubmit(event) {
+  handleStudentChange = (idx) => (event) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, [event.target.name]: event.target.value };
+    });
 
+    this.setState({ students: newStudents });
+  }
+
+  handleStudentGenderChange = (idx) => (event, index, value) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, gender: value };
+    });
+
+    this.setState({ students: newStudents });
+  }
+
+  handleStudentDateChange = (idx) => (event, date) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, dob: date };
+    });
+
+    this.setState({ students: newStudents });
+  }
+
+  handleSubmit = (event) => {
     event.preventDefault();
 
-    var fname = this.state.fname;
-    var lname = this.state.lname;
-    var gender = this.state.gender;
-    var dob = this.state.dob;
-    var level = this.state.level;
-    var class_type = this.state.class_type;
-    var class_length = this.state.class_length;
-    var status = this.state.status;
+    var students = this.state.students;
     var token = this.state.token;
 
     axios.post('/update_students', {
       token: token,
-      fname: fname,
-      lname: lname,
-      gender: gender,
-      dob: dob,
-      level: level,
-      class_type: class_type,
-      class_length: class_length,
-      status: status
+      students: students
     })
     .then(response => {
 
@@ -74,32 +83,42 @@ class StudentPage extends React.Component {
 
   }
 
-  handleInputChange(event) {
-    this.setState({ [event.target.name] : event.target.value});
-    console.log(this.state.name)
+
+  handleAddStudent = () => {
+    this.setState({
+      students: this.state.students.concat([{ student_id: '-1' }])
+    });
   }
+
+  handleRemoveStudent = (idx) => () => {
+    this.setState({
+      students: this.state.students.filter((s, sidx) => idx !== sidx)
+  });
+}
 
   render() {
     console.log(this.state.students);
+    console.log(this.state.headerHeight);
+    var divStyle = {
+      height: this.state.headerHeight
+    };
+    console.log(divStyle);
 
     return (
-
-      <StudentForm
-        onSubmit={this.handleSubmit}
-        onChange={this.handleInputChange}
-        errors={this.state.errors}
-        fname={this.state.fname}
-        lname={this.state.lname}
-        gender={this.state.gender}
-        dob={this.state.dob}
-        level={this.state.level}
-        class_type={this.state.class_type}
-        class_length={this.state.class_length}
-        status={this.state.status}
-        students={this.state.students}
-      />
+      <div>
+        <div style={divStyle}></div>
+        <StudentForm
+          onSubmit={this.handleSubmit}
+          onChange={this.handleStudentChange}
+          addStudent = {this.handleAddStudent}
+          removeStudent = {this.handleRemoveStudent}
+          errors={this.state.errors}
+          students={this.state.students}
+          onGenderChange={this.handleStudentGenderChange}
+          onDateChange={this.handleStudentDateChange}
+        />
+      </div>
     );
   }
 }
-
-export default StudentPage;
+export default StudentPage

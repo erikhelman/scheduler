@@ -7,6 +7,7 @@ class ProfilePage extends React.Component {
     super(props);
 
     this.state = {
+      headerHeight: '',
       errors: {},
       token: sessionStorage.getItem("token"),
       fname: '',
@@ -25,6 +26,8 @@ class ProfilePage extends React.Component {
 
   componentDidMount () {
 
+    this.setState({headerHeight: document.getElementById('header').clientHeight});
+    
     var token = this.state.token;
 
     axios.post('/profile', {
@@ -87,20 +90,28 @@ class ProfilePage extends React.Component {
   }
 
   render() {
+
+    var headerStyle = {
+      height: this.state.headerHeight
+    };
+
     return (
-      <ProfileForm
-        onSubmit={this.handleSubmit}
-        onChange={this.handleInputChange}
-        errors={this.state.errors}
-        fname={this.state.fname}
-        lname={this.state.lname}
-        city={this.state.city}
-        street={this.state.street}
-        province={this.state.province}
-        postal={this.state.postal}
-        phone={this.state.phone}
-        email={this.state.email}
-      />
+      <div>
+        <div style={headerStyle}></div>
+        <ProfileForm
+          onSubmit={this.handleSubmit}
+          onChange={this.handleInputChange}
+          errors={this.state.errors}
+          fname={this.state.fname}
+          lname={this.state.lname}
+          city={this.state.city}
+          street={this.state.street}
+          province={this.state.province}
+          postal={this.state.postal}
+          phone={this.state.phone}
+          email={this.state.email}
+        />
+      </div>
     );
   }
 }

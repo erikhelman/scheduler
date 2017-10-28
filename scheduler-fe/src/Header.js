@@ -28,6 +28,7 @@ class Header extends React.Component {
     return (
     <AppBar
       style={{...styles, ...style.appBar}}
+      id="header"
       title="Scheduler"
       iconElementLeft={
         <IconButton style={style.menuButton} onClick={handleChangeRequestNavDrawer}>

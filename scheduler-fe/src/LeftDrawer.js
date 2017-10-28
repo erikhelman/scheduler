@@ -26,7 +26,9 @@ const LeftDrawer = (props) => {
   }
 
   return (
-        <Drawer open={navDrawerOpen}>
+        <Drawer
+          open={navDrawerOpen}
+        >
           <div style={styles.logo}>
             Navigation
           </div>

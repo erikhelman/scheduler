@@ -16,10 +16,8 @@ const ProfileForm = ({
   phone,
   email
  }) => (
-  <Card className="container" style={{marginLeft:10,marginRight:10, paddingTop:75}}>
+  <Card className="container" style={{marginLeft:10,marginRight:10}}>
     <form action="/" onSubmit={onSubmit}>
-
-
 
       <div style = {{display:'inline-block', marginLeft:20}}>
 

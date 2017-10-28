@@ -12,7 +12,11 @@ app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
 CORS(app, resources={r"https://floating-fortress-53646.herokuapp.com/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
+
+app.config.from_pyfile('config.py')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+#app.config['SECRET_KEY'] = 'secret'
+
 db = SQLAlchemy(app)
 url = "https://glacial-sierra-90432.herokuapp.com/"
 
@@ -71,7 +75,7 @@ def login():
         if user and pwd_context.verify(password,user.password):
 
             payload = {'user_id' : user.public_id, 'role' : 'user'}
-            token = (jwt.encode(payload, 'secret', algorithm='HS256').decode("utf-8"))
+            token = (jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode("utf-8"))
             return ('{"isAuthenticated": "true", "token": "' + token+ '"}')
 
         return '{"isAuthenticated": "false"}'
@@ -127,8 +131,9 @@ def get_profile():
         payload = request.data.decode('utf8')
         data = json.loads(payload)
 
+
         try:
-            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
 
         except jwt.ExpiredSignatureError:
             return "Token has expired, please log in again"
@@ -162,7 +167,7 @@ def update_profile():
         data = json.loads(payload)
 
         try:
-            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
 
         except jwt.ExpiredSignatureError:
             return "Token has expired, please log in again"
@@ -199,11 +204,11 @@ def get_students():
         payload = request.data.decode('utf8')
         data = json.loads(payload)
 
-        with open ('testfile.txt','w') as f:
-            json.dump(data, f)
+        #with open ('testfile.txt','w') as f:
+        #    json.dump(data, f)
 
         try:
-            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
 
         except jwt.ExpiredSignatureError:
             return "Token has expired, please log in again"
@@ -221,18 +226,18 @@ def get_students():
             for s in user.students:
 
                 new_student = {'student_id': s.student_id,
-                               'fname': s.fname,
-                               'lname': s.lname,
-                               'email': s.email,
+                               'fname': s.fname if s.fname != None else '',
+                               'lname': s.lname if s.lname != None else '',
+                               #'email': s.email,
                                'dob': s.dob,
-                               'phone': s.phone_number,
-                               'gender': s.gender,
-                               'level': s.level,
-                               'class_type': s.class_type,
-                               'class_length': s.class_length,
-                               'status': s.status,
-                               'emerg_contact': s.emerg_contact,
-                               'emerg_phone': s.emerg_phone}
+                               #'phone': s.phone_number,
+                               'gender': s.gender if s.gender != None else ''}
+                               #'level': s.level,
+                               #'class_type': s.class_type,
+                               #'class_length': s.class_length,
+                               #'status': s.status,
+                               #'emerg_contact': s.emerg_contact,
+                               #'emerg_phone': s.emerg_phone}
 
                 userdata['students'].append(new_student)
 
@@ -246,8 +251,12 @@ def update_students():
         payload = request.data.decode('utf8')
         data = json.loads(payload)
 
+        with open ('testfile.txt','w') as f:
+            json.dump(data, f)
+
+
         try:
-            token = jwt.decode(data['token'], 'secret', algorithms='HS256')
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
 
         except jwt.ExpiredSignatureError:
             return "Token has expired, please log in again"
@@ -259,21 +268,46 @@ def update_students():
             user_id = token['user_id']
             user = Users.query.filter(Users.public_id == user_id).first()
 
-            if data['dob'] == '':
-                data['dob'] = None
+            if user.students.count() != len(data['students']):
 
-            if data['class_length'] == '':
-                data['class_length'] = None
+                for es in user.students:
 
-            user.students[0].fname = data['fname']
-            user.students[0].lname = data['lname']
-            user.students[0].gender = data['gender']
-            user.students[0].dob = data['dob']
+                    match = False
 
-            user.students[0].level = data['level']
-            user.students[0].class_type = data['class_type']
-            user.students[0].class_length = data['class_length']
-            user.students[0].status = data['status']
+                    for ds in data['students']:
+
+                        if es.student_id == ds['student_id']:
+
+                            match = True
+
+                    if match == False:
+
+                        Students.query.filter(Students.student_id==es.student_id).delete()
+
+            for s in data['students']:
+
+                if s['student_id'] == str(-1):
+
+                    new_student = Students(fname=s['fname'],
+                                       lname=s['lname'],
+                                       gender=s['gender'])
+                                       #dob = s['dob'])
+                                       #level=s['level'],
+                                       #class_type=s['type'],
+                                       #class_length=s['length'],
+                                       #status=s['status']
+
+                    user.students.append(new_student)
+
+                else:
+
+                    for es in user.students:
+
+                        if es.student_id == s['student_id']:
+                            es.fname = s['fname']
+                            es.lname = s['lname']
+                            es.gender = s['gender']
+                            es.dob = s['dob']
 
             db.session.add(user)
             db.session.commit()
@@ -290,7 +324,7 @@ def get_all_students():
         data = json.loads(payload)
 
         try:
-            jwt.decode(data['token'], 'secret', algorithms='HS256')
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
 
         except jwt.ExpiredSignatureError:
             return "Token has expired, please log in again"
