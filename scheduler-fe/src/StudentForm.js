@@ -2,6 +2,9 @@ import React from 'react';
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
+import TextField from 'material-ui/TextField';
+import { Card } from 'material-ui/Card';
 
 const StudentForm = ({
   onChange,
@@ -13,48 +16,47 @@ const StudentForm = ({
   onGenderChange,
   onDateChange
  }) => (
-   <div name="container">
-     
+   <Card className="container" style={{margin: 10}} >
+
      <form onSubmit={onSubmit}>
 
-       <h4>Students</h4>
 
        {students.map((student, idx) => (
          <div className="students">
 
-           <input
-             type="text"
-             placeholder={`Student #${idx + 1} fname`}
+           <TextField
              value={student.fname}
              name="fname"
              onChange={onChange(idx)}
+             style = {{marginLeft: 20,  marginRight: 10}}
            />
 
-           <input
-             type="text"
-             placeholder={`Student #${idx + 1} lname`}
+           <TextField
              value={student.lname}
              name="lname"
              onChange={onChange(idx)}
+             style = {{marginLeft: 20,  marginRight: 10}}
            />
-
+           <br />
            <DropDownMenu
              name="gender"
              value={student.gender}
-             onChange={onGenderChange(idx)}>
+             onChange={onGenderChange(idx)}
+           >
 
              <MenuItem value={"m"} primaryText="Male" />
              <MenuItem value={"f"} primaryText="Female" />
 
            </DropDownMenu>
-
+           <br />
            <DatePicker
              name="dob"
              hintText="Date of Birth"
              container="inline"
              mode="landscape"
              value={student.dob}
-             onChange={onDateChange(idx)} />
+             onChange={onDateChange(idx)}
+             style = {{marginLeft: 20,  marginRight: 10}} />
 
            <button
              type="button"
@@ -63,17 +65,21 @@ const StudentForm = ({
            </button>
          </div>
        ))}
-       <button
+       <RaisedButton
          type="button"
          onClick={addStudent}
-       className="small">Add Student
-       </button>
+         style={{margin: 10}}
+         label = "Add Student"
+       />
 
-       <button
-         onSubmit = {onSubmit}>Submit Changes
-       </button>
+       <RaisedButton
+         type="submit"
+         label = "Submit Changes"
+         style={{margin: 10}}
+       />
+
      </form>
-   </div>
+   </Card>
      )
 
 export default StudentForm;

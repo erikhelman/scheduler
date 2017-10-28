@@ -97,16 +97,13 @@ class StudentPage extends React.Component {
 }
 
   render() {
-    console.log(this.state.students);
-    console.log(this.state.headerHeight);
-    var divStyle = {
+    var headerStyle = {
       height: this.state.headerHeight
     };
-    console.log(divStyle);
 
     return (
       <div>
-        <div style={divStyle}></div>
+        <div style={headerStyle}></div>
         <StudentForm
           onSubmit={this.handleSubmit}
           onChange={this.handleStudentChange}
