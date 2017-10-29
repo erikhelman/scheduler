@@ -9,8 +9,7 @@ import ProfilePage from './ProfilePage';
 import { Route } from 'react-router-dom';
 import StudentPage from './StudentPage';
 import AllStudentsPage from './AllStudentsPage';
-import { Redirect } from 'react-router-dom';
-
+//import { Redirect } from 'react-router-dom';
 
 class MainPage extends React.Component {
 
@@ -53,13 +52,14 @@ class MainPage extends React.Component {
       }
     };
 
-    {/*if (this.state.loggedIn !== true){
+
+    /*{if (this.state.loggedIn !== true){
       return <Redirect to={{
         pathname: '/',
         state: { loggedIn: this.state.loggedIn }
 
       }}/>;
-    }*/}
+    }}*/
 
     return (
       <MuiThemeProvider muiTheme={ThemeDefault}>

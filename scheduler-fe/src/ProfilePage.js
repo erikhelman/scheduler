@@ -17,7 +17,8 @@ class ProfilePage extends React.Component {
       street: '',
       postal: '',
       phone: '',
-      email: ''
+      email: '',
+      value:1
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -27,7 +28,7 @@ class ProfilePage extends React.Component {
   componentDidMount () {
 
     this.setState({headerHeight: document.getElementById('header').clientHeight});
-    
+
     var token = this.state.token;
 
     axios.post('/profile', {
@@ -59,7 +60,7 @@ class ProfilePage extends React.Component {
     var lname = this.state.lname;
     var city = this.state.city;
     var street = this.state.street;
-    var province = this.state.province;
+    var province = this.state.value;
     var postal = this.state.postal;
     var phone = this.state.phone;
     var email = this.state.email;
@@ -89,6 +90,10 @@ class ProfilePage extends React.Component {
     this.setState({ [event.target.name] : event.target.value});
   }
 
+handleProvinceChange = (event, index, value) => {
+  this.setState({value});
+
+}
   render() {
 
     var headerStyle = {
@@ -106,10 +111,11 @@ class ProfilePage extends React.Component {
           lname={this.state.lname}
           city={this.state.city}
           street={this.state.street}
-          province={this.state.province}
+          province={this.state.value}
           postal={this.state.postal}
           phone={this.state.phone}
           email={this.state.email}
+          onProvinceChange={this.handleProvinceChange}
         />
       </div>
     );
