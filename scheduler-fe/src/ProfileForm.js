@@ -86,18 +86,18 @@ const ProfileForm = ({
            errorText={errors.name}
            value={province}
          >
-           <MenuItem value={"1"} primaryText="Ontario" />
-           <MenuItem value={"2"} primaryText="Quebec" />
-           <MenuItem value={"3"} primaryText="Manitoba" />
-           <MenuItem value={"4"} primaryText="Alberta" />
-           <MenuItem value={"5"} primaryText="Saskatchewan" />
-           <MenuItem value={"6"} primaryText="British Columbia" />
-           <MenuItem value={"7"} primaryText="Nova Scotia" />
-           <MenuItem value={"8"} primaryText="Newfoundland" />
-           <MenuItem value={"9"} primaryText="Prince Edward Island" />
-           <MenuItem value={"10"} primaryText="Yukon" />
-           <MenuItem value={"11"} primaryText="Northwest Territories" />
-           <MenuItem value={"12"} primaryText="Nunavut" />
+           <MenuItem value={"ON"} primaryText="Ontario" />
+           <MenuItem value={"QC"} primaryText="Quebec" />
+           <MenuItem value={"MB"} primaryText="Manitoba" />
+           <MenuItem value={"AB"} primaryText="Alberta" />
+           <MenuItem value={"SK"} primaryText="Saskatchewan" />
+           <MenuItem value={"BC"} primaryText="British Columbia" />
+           <MenuItem value={"NS"} primaryText="Nova Scotia" />
+           <MenuItem value={"NL"} primaryText="Newfoundland" />
+           <MenuItem value={"PE"} primaryText="Prince Edward Island" />
+           <MenuItem value={"YT"} primaryText="Yukon" />
+           <MenuItem value={"NT"} primaryText="Northwest Territories" />
+           <MenuItem value={"NU"} primaryText="Nunavut" />
          </SelectField>
 
 

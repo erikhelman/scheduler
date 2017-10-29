@@ -229,15 +229,15 @@ def get_students():
                                'fname': s.fname if s.fname != None else '',
                                'lname': s.lname if s.lname != None else '',
                                #'email': s.email,
-                               'dob': s.dob,
-                               #'phone': s.phone_number,
-                               'gender': s.gender if s.gender != None else ''}
-                               #'level': s.level,
-                               #'class_type': s.class_type,
-                               #'class_length': s.class_length,
-                               #'status': s.status,
-                               #'emerg_contact': s.emerg_contact,
-                               #'emerg_phone': s.emerg_phone}
+                               'dob': s.dob if s.dob != None else '',
+                               'phone': s.phone_number if s.phone_number != None else '',
+                               'gender': s.gender if s.gender != None else '',
+                               'level': s.level if s.level != None else '',
+                               'class_type': s.class_type if s.gender != None else '',
+                               'class_length': s.class_length if s.class_length != None else '',
+                               'status': s.status if s.status != None else '',
+                               'emerg_contact': s.emerg_contact if s.emerg_contact != None else '',
+                               'emerg_phone': s.emerg_phone if s.emerg_phone != None else ''}
 
                 userdata['students'].append(new_student)
 
@@ -286,16 +286,21 @@ def update_students():
 
             for s in data['students']:
 
+                if s['dob'] != None:
+                    x = s['dob'].replace('-', '')
+                    date = datetime.datetime.strptime(x[:8], "%Y%m%d").date()
+
                 if s['student_id'] == str(-1):
 
                     new_student = Students(fname=s['fname'],
-                                       lname=s['lname'],
-                                       gender=s['gender'])
-                                       #dob = s['dob'])
-                                       #level=s['level'],
-                                       #class_type=s['type'],
-                                       #class_length=s['length'],
-                                       #status=s['status']
+                                           lname=s['lname'],
+                                           gender=s['gender'],
+                                           dob = date,
+                                           level=s['level'],
+                                           class_type=s['class_type'],
+                                           class_length=s['class_length'],
+                                           emerg_contact=s['emerg_contact'],
+                                           emerg_phone=s['emerg_phone'])
 
                     user.students.append(new_student)
 
@@ -307,7 +312,12 @@ def update_students():
                             es.fname = s['fname']
                             es.lname = s['lname']
                             es.gender = s['gender']
-                            es.dob = s['dob']
+                            es.dob = date
+                            es.level = s['level']
+                            es.class_type = s['class_type']
+                            es.class_length = s['class_length']
+                            es.emerg_contact=s['emerg_contact']
+                            es.emerg_phone=s['emerg_phone']
 
             db.session.add(user)
             db.session.commit()

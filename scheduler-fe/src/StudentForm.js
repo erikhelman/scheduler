@@ -15,10 +15,12 @@ const StudentForm = ({
   errors,
   students,
   onGenderChange,
-  onDateChange
+  onDateChange,
+  onClassTypeChange,
+  onClassLengthChange
  }) => (
-     <form onSubmit={onSubmit}>
 
+     <form onSubmit={onSubmit}>
 
        {students.map((student, idx) => (
          <Card className="students" style={{margin:'1em', paddingBottom: '1em'}}>
@@ -79,6 +81,66 @@ const StudentForm = ({
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
                maxDate = {new Date()}
+             />
+           </div>
+           <div style={customStyle.general}>
+             <SelectField
+               name="class_type"
+               floatingLabelText="Class Type"
+               floatingLabelFixed={true}
+               value={student.class_type}
+               onChange={onClassTypeChange(idx)}
+               style={customStyle.SelectField}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+             >
+
+               <MenuItem value={"group"} primaryText="Group" />
+               <MenuItem value={"semi"} primaryText="Semi-Private" />
+               <MenuItem value={"private"} primaryText="Private" />
+               <MenuItem value={"dev"} primaryText="Development" />
+
+             </SelectField>
+
+             <SelectField
+               name="class_length"
+               floatingLabelText="Class Length"
+               floatingLabelFixed={true}
+               value={student.class_length}
+               onChange={onClassLengthChange(idx)}
+               style={customStyle.general}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+             >
+
+               <MenuItem value={"30"} primaryText="30 minutes" />
+               <MenuItem value={"45"} primaryText="45 minutes" />
+               <MenuItem value={"60"} primaryText="1 hour" />
+
+             </SelectField>
+           </div>
+
+           <div>
+             <TextField
+               floatingLabelText="Emergency Contact Name"
+               floatingLabelFixed={true}
+               value={student.emerg_contact}
+               name="emerg_contact"
+               onChange={onChange(idx)}
+               style={customStyle.nameTextFields}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+             />
+
+             <TextField
+               name="emerg_phone"
+               floatingLabelText="Emergency Contact Number"
+               floatingLabelFixed={true}
+               style={customStyle.textfields}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+               onChange={onChange(idx)}
+               value={student.emerg_phone}
              />
            </div>
 

@@ -27,6 +27,10 @@ class StudentPage extends React.Component {
       token: token
     })
     .then(response => {
+      response.data.students.forEach(function(student){
+          student.dob += " EDT"
+          student.dob = new Date(student.dob);
+      });
 
       this.setState({students: (response.data.students != null ? response.data.students : '')});
 
@@ -50,6 +54,24 @@ class StudentPage extends React.Component {
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
       return { ...student, gender: value };
+    });
+
+    this.setState({ students: newStudents });
+  }
+
+  handleClassLengthChange = (idx) => (event, index, value) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, class_length: value };
+    });
+
+    this.setState({ students: newStudents });
+  }
+
+  handleClassTypeChange = (idx) => (event, index, value) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, class_type: value };
     });
 
     this.setState({ students: newStudents });
@@ -97,6 +119,7 @@ class StudentPage extends React.Component {
 }
 
   render() {
+    console.log(this.state.students);
     var headerStyle = {
       height: this.state.headerHeight
     };
@@ -113,6 +136,8 @@ class StudentPage extends React.Component {
           students={this.state.students}
           onGenderChange={this.handleStudentGenderChange}
           onDateChange={this.handleStudentDateChange}
+          onClassTypeChange={this.handleClassTypeChange}
+          onClassLengthChange={this.handleClassLengthChange}
         />
       </div>
     );

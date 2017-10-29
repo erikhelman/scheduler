@@ -17,8 +17,7 @@ class ProfilePage extends React.Component {
       street: '',
       postal: '',
       phone: '',
-      email: '',
-      value:1
+      email: ''
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -60,7 +59,7 @@ class ProfilePage extends React.Component {
     var lname = this.state.lname;
     var city = this.state.city;
     var street = this.state.street;
-    var province = this.state.value;
+    var province = this.state.province;
     var postal = this.state.postal;
     var phone = this.state.phone;
     var email = this.state.email;
@@ -86,16 +85,15 @@ class ProfilePage extends React.Component {
 
   }
 
-  handleInputChange(event) {
+handleInputChange(event) {
     this.setState({ [event.target.name] : event.target.value});
-  }
+}
 
 handleProvinceChange = (event, index, value) => {
-  this.setState({value});
+  this.setState({province: value});
 
 }
   render() {
-
     var headerStyle = {
       height: this.state.headerHeight
     };
@@ -111,7 +109,7 @@ handleProvinceChange = (event, index, value) => {
           lname={this.state.lname}
           city={this.state.city}
           street={this.state.street}
-          province={this.state.value}
+          province={this.state.province}
           postal={this.state.postal}
           phone={this.state.phone}
           email={this.state.email}
