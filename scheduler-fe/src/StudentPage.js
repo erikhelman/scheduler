@@ -27,9 +27,13 @@ class StudentPage extends React.Component {
       token: token
     })
     .then(response => {
+
       response.data.students.forEach(function(student){
-          student.dob += " EDT"
-          student.dob = new Date(student.dob);
+
+          if (student.dob !== '') {
+            student.dob += " EDT"
+            student.dob = new Date(student.dob);
+          }
       });
 
       this.setState({students: (response.data.students != null ? response.data.students : '')});
@@ -54,6 +58,15 @@ class StudentPage extends React.Component {
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
       return { ...student, gender: value };
+    });
+
+    this.setState({ students: newStudents });
+  }
+
+  handleLevelChange = (idx) => (event, index, value) => {
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, level: value };
     });
 
     this.setState({ students: newStudents });
@@ -138,6 +151,7 @@ class StudentPage extends React.Component {
           onDateChange={this.handleStudentDateChange}
           onClassTypeChange={this.handleClassTypeChange}
           onClassLengthChange={this.handleClassLengthChange}
+          onLevelChange={this.handleLevelChange}
         />
       </div>
     );

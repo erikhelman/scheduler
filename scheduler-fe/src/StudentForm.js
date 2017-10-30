@@ -17,7 +17,8 @@ const StudentForm = ({
   onGenderChange,
   onDateChange,
   onClassTypeChange,
-  onClassLengthChange
+  onClassLengthChange,
+  onLevelChange
  }) => (
 
      <form onSubmit={onSubmit}>
@@ -27,6 +28,7 @@ const StudentForm = ({
            <div>
              <TextField
                floatingLabelText="First Name"
+               floatingLabelFixed={true}
                value={student.fname}
                name="fname"
                onChange={onChange(idx)}
@@ -36,6 +38,7 @@ const StudentForm = ({
              />
              <TextField
                floatingLabelText="Last Name"
+               floatingLabelFixed={true}
                value={student.lname}
                name="lname"
                onChange={onChange(idx)}
@@ -116,6 +119,30 @@ const StudentForm = ({
                <MenuItem value={"30"} primaryText="30 minutes" />
                <MenuItem value={"45"} primaryText="45 minutes" />
                <MenuItem value={"60"} primaryText="1 hour" />
+
+             </SelectField>
+
+             <SelectField
+               name="level"
+               floatingLabelText="Level"
+               floatingLabelFixed={true}
+               value={student.level}
+               onChange={onLevelChange(idx)}
+               style={customStyle.general}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+             >
+
+               <MenuItem value={"1"} primaryText="1" />
+               <MenuItem value={"2"} primaryText="2" />
+               <MenuItem value={"3"} primaryText="3" />
+               <MenuItem value={"4"} primaryText="4" />
+               <MenuItem value={"5"} primaryText="5" />
+               <MenuItem value={"6"} primaryText="6" />
+               <MenuItem value={"7"} primaryText="7" />
+               <MenuItem value={"8"} primaryText="8" />
+               <MenuItem value={"9"} primaryText="9" />
+               <MenuItem value={"10"} primaryText="10" />
 
              </SelectField>
            </div>
