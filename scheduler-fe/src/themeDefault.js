@@ -1,5 +1,5 @@
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import { blue600, grey900 } from 'material-ui/styles/colors';
+import { blue600, grey900 , white} from 'material-ui/styles/colors';
 const themeDefault = getMuiTheme({
   palette: {
     pickerHeaderColor:blue600,
@@ -29,6 +29,11 @@ const themeDefault = getMuiTheme({
     accent2Color: blue600,
     accent3Color: blue600,
     borderColor: blue600,
+  },
+  snackbar: {
+    primaryColor:blue600,
+    backgroundColor:blue600,
+
   }
 });
 

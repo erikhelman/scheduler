@@ -16,6 +16,28 @@ class LoginPage extends React.Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+
+  }
+
+  validateLoginForm = () => {
+
+    let isFormValid = true;
+
+    this.setState({errors: {}});
+
+    if (this.state.name.trim().length === 0) {
+      isFormValid = false;
+      this.setState({errors: {name: 'Please provide your username'}});
+
+    }
+
+    if (this.state.password.trim().length === 0) {
+      isFormValid = false;
+      this.setState({errors: {password: 'Please provide your password'}});
+
+    }
+
+    return isFormValid;
   }
 
   handleSubmit(event) {
@@ -23,37 +45,40 @@ class LoginPage extends React.Component {
     event.preventDefault();
     const name = this.state.name;
     const password = this.state.password;
-    var self=this;
+    var self = this;
 
-    axios.post('/login', {
-      name: name,
-      password: password
-    })
-    .then(function (response) {
+    if (this.validateLoginForm()) {
+      axios.post('/login', {
+      //axios.post('https://glacial-sierra-90432.herokuapp.com/login', {
+        name: name,
+        password: password
+      })
+      .then(function (response) {
 
-      if (response.status === 200) {
+        if (response.status === 200) {
 
-        if (response.data.hasOwnProperty("isAuthenticated")) {
+          if (response.data.hasOwnProperty("isAuthenticated")) {
 
-          if (response.data.isAuthenticated === "true") {
+            if (response.data.isAuthenticated === "true") {
 
-              sessionStorage.setItem("token", response.data["token"]);
-              self.setState({loggedIn: true});
+                sessionStorage.setItem("token", response.data["token"]);
+                self.setState({loggedIn: true});
 
+            } else {
+              self.setState({errors: {summary: 'Invalid username and/or password'}});
+            }
           } else {
-            console.log('Invalid username and/or password.')
+              self.setState({errors: {summary: 'Invalid response, authentication not validated'}});
           }
         } else {
-            console.log("Invalid response, authentication not validated")
-        }
-      } else {
-          console.log("An error has occurred. Please try to login again.");
-        }
+            self.setState({errors: {summary: "An error has occurred. Please try to login again."}});
+          }
 
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
   }
 
   handleInputChange(event) {

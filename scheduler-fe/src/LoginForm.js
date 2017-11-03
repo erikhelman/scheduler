@@ -15,9 +15,9 @@ const LoginForm = ({
 }) => (
   <Card className="container" >
     <form action="/" onSubmit={onSubmit}>
-      <h2 className="card-heading">Login</h2>
+      <h2 className="card-heading" style={{textAlign: 'center'}}>Login</h2>
 
-      {errors.summary && <p className="error-message">{errors.summary}</p>}
+      {errors.summary && <p style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</p>}
 
       <div >
         <TextField
@@ -53,10 +53,10 @@ const LoginForm = ({
           style={customStyle.general}
           backgroundColor = '#1E88E5'
           labelColor = '#FFFFFF'
-          />
+        />
       </div>
 
-      <CardText>Don't have an account? <Link to={'/registration'}>Create one</Link></CardText>
+      <CardText style={{textAlign: 'center'}}>Don't have an account? <Link to={'/registration'}>Create one</Link></CardText>
 
     </form>
   </Card>

@@ -68,7 +68,7 @@ def login():
     if request.method == 'POST':
 
         data = json.loads(request.data.decode('utf8'))
-        name = data['name']
+        name = data['name'].lower()
         password = data['password']
 
         user = Users.query.filter(Users.username == name).first()
@@ -87,7 +87,7 @@ def register():
     if request.method == 'POST':
         payload = request.data.decode('utf8')
         data = json.loads(payload)
-        name = data['name']
+        name = data['name'].lower()
         password = data['password']
         email=data['email']
 
@@ -286,21 +286,42 @@ def update_students():
 
             for s in data['students']:
 
-                if s['dob'] != None:
-                    x = s['dob'].replace('-', '')
-                    date = datetime.datetime.strptime(x[:8], "%Y%m%d").date()
+                date = None
+                class_length = None
+                emerg_phone = None
+
+                if 'dob' in s:
+
+                    if s['dob'] != None and s['dob'] != '':
+
+                        x = s['dob'].replace('-', '')
+                        date = datetime.datetime.strptime(x[:8], "%Y%m%d").date()
+
+                if 'class_length' in s:
+
+                    if s['class_length'] != '':
+
+                        class_length = s['class_length']
+
+
+                if 'emerg_phone' in s:
+
+                    if s['emerg_phone'] != '':
+
+                        emerg_phone = s['emerg_phone']
 
                 if s['student_id'] == str(-1):
 
-                    new_student = Students(fname=s['fname'],
-                                           lname=s['lname'],
-                                           gender=s['gender'],
+
+                    new_student = Students(fname = s['fname'] if 'fname' in s else None,
+                                           lname=s['lname'] if 'lname' in s else None,
+                                           gender=s['gender'] if 'gender' in s else None,
                                            dob = date,
-                                           level=s['level'],
-                                           class_type=s['class_type'],
-                                           class_length=s['class_length'],
-                                           emerg_contact=s['emerg_contact'],
-                                           emerg_phone=s['emerg_phone'])
+                                           level=s['level'] if 'level' in s else None,
+                                           class_type=s['class_type'] if 'class_type' in s else None,
+                                           class_length= class_length,
+                                           emerg_contact=s['emerg_contact'] if 'emerg_contact' in s else None,
+                                           emerg_phone=emerg_phone)
 
                     user.students.append(new_student)
 
@@ -309,15 +330,15 @@ def update_students():
                     for es in user.students:
 
                         if es.student_id == s['student_id']:
-                            es.fname = s['fname']
-                            es.lname = s['lname']
-                            es.gender = s['gender']
+                            es.fname = s['fname'] if 'fname' in s else None
+                            es.lname = s['lname'] if 'lname' in s else None
+                            es.gender = s['gender'] if 'gender' in s else None
                             es.dob = date
-                            es.level = s['level']
-                            es.class_type = s['class_type']
-                            es.class_length = s['class_length']
-                            es.emerg_contact=s['emerg_contact']
-                            es.emerg_phone=s['emerg_phone']
+                            es.level = s['level'] if 'level' in s else None
+                            es.class_type = s['class_type'] if 'class_type' in s else None
+                            es.class_length = class_length
+                            es.emerg_contact=s['emerg_contact'] if 'emerg_contact' in s else None
+                            es.emerg_phone=emerg_phone
 
             db.session.add(user)
             db.session.commit()

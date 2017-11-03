@@ -6,6 +6,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import { Card } from 'material-ui/Card';
 import {blue600} from 'material-ui/styles/colors';
+import Divider from 'material-ui/Divider';
 
 const StudentForm = ({
   onChange,
@@ -24,7 +25,7 @@ const StudentForm = ({
      <form onSubmit={onSubmit}>
 
        {students.map((student, idx) => (
-         <Card className="students" style={{margin:'1em', paddingBottom: '1em'}}>
+         <Card key={idx} className="students" style={{margin:'1em', paddingBottom: '1em'}}>
            <div>
              <TextField
                floatingLabelText="First Name"
@@ -56,6 +57,18 @@ const StudentForm = ({
              />
            </div>
            <div style={customStyle.general}>
+             <DatePicker
+               name="dob"
+               floatingLabelText="Date of Birth"
+               floatingLabelFixed={true}
+               container="inline"
+               mode="landscape"
+               value={student.dob}
+               onChange={onDateChange(idx)}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+               maxDate = {new Date()}
+             />
              <SelectField
                name="gender"
                floatingLabelText="Gender"
@@ -72,20 +85,30 @@ const StudentForm = ({
 
              </SelectField>
            </div>
-           <div style={customStyle.general}>
-             <DatePicker
-               name="dob"
-               floatingLabelText="Date of Birth"
+           <div style={{paddingBottom:'1em'}}>
+             <TextField
+               floatingLabelText="Emergency Contact Name"
                floatingLabelFixed={true}
-               container="inline"
-               mode="landscape"
-               value={student.dob}
-               onChange={onDateChange(idx)}
+               value={student.emerg_contact}
+               name="emerg_contact"
+               onChange={onChange(idx)}
+               style={customStyle.nameTextFields}
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
-               maxDate = {new Date()}
+             />
+
+             <TextField
+               name="emerg_phone"
+               floatingLabelText="Emergency Contact Number"
+               floatingLabelFixed={true}
+               style={customStyle.textfields}
+               underlineFocusStyle={customStyle.underlineStyle}
+               floatingLabelFocusStyle={customStyle.colorStyle}
+               onChange={onChange(idx)}
+               value={student.emerg_phone}
              />
            </div>
+           <Divider />
            <div style={customStyle.general}>
              <SelectField
                name="class_type"
@@ -111,14 +134,14 @@ const StudentForm = ({
                floatingLabelFixed={true}
                value={student.class_length}
                onChange={onClassLengthChange(idx)}
-               style={customStyle.general}
+               style={customStyle.SelectField}
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
              >
 
-               <MenuItem value={"30"} primaryText="30 minutes" />
-               <MenuItem value={"45"} primaryText="45 minutes" />
-               <MenuItem value={"60"} primaryText="1 hour" />
+               <MenuItem value={30} primaryText="30 minutes" />
+               <MenuItem value={45} primaryText="45 minutes" />
+               <MenuItem value={60} primaryText="1 hour" />
 
              </SelectField>
 
@@ -128,7 +151,7 @@ const StudentForm = ({
                floatingLabelFixed={true}
                value={student.level}
                onChange={onLevelChange(idx)}
-               style={customStyle.general}
+               style={customStyle.SelectField}
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
              >
@@ -146,30 +169,29 @@ const StudentForm = ({
 
              </SelectField>
            </div>
-
            <div>
              <TextField
-               floatingLabelText="Emergency Contact Name"
+               floatingLabelText="Lesson Date"
                floatingLabelFixed={true}
-               value={student.emerg_contact}
-               name="emerg_contact"
+               value={student.lesson_date}
+               name="lessonDate"
                onChange={onChange(idx)}
                style={customStyle.nameTextFields}
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
              />
-
              <TextField
-               name="emerg_phone"
-               floatingLabelText="Emergency Contact Number"
+               floatingLabelText="Lesson Time"
                floatingLabelFixed={true}
-               style={customStyle.textfields}
+               value={student.lesson_time}
+               name="lessonTime"
+               onChange={onChange(idx)}
+               style={customStyle.nameTextFields}
                underlineFocusStyle={customStyle.underlineStyle}
                floatingLabelFocusStyle={customStyle.colorStyle}
-               onChange={onChange(idx)}
-               value={student.emerg_phone}
              />
            </div>
+
 
          </Card>
        ))}
@@ -202,9 +224,10 @@ const StudentForm = ({
          flex:'1',
        },
        selectField: {
-         marginRight:'1em',
-         marginLeft: '2em',
-         alignSelf: 'flex-end'
+         marginRight:'10em',
+         marginLeft: '10em',
+         width:'20em'
+
        },
        nameTextFields: {
          marginRight:'1em',

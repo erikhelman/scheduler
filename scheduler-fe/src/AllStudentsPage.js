@@ -34,6 +34,7 @@ class AllStudentsPage extends React.Component {
     var self = this;
 
     axios.post('/all_students', {
+    //axios.post('https://glacial-sierra-90432.herokuapp.com/all_students', {
       token: token
     })
     .then(response => {

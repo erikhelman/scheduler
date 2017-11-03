@@ -12,7 +12,9 @@ class StudentPage extends React.Component {
       token: sessionStorage.getItem("token"),
       students: [{ student_id: '',
                   fname: '' ,
-                  lname: ''}]
+                  lname: '',
+                  emerg_contact: '',
+                  emerg_phone: ''}]
     };
   }
 
@@ -24,16 +26,19 @@ class StudentPage extends React.Component {
     var token = this.state.token;
 
     axios.post('/students', {
+    //axios.post('https://glacial-sierra-90432.herokuapp.com/students', {
       token: token
     })
     .then(response => {
 
       response.data.students.forEach(function(student){
 
+          
           if (student.dob !== '') {
             student.dob += " EDT"
             student.dob = new Date(student.dob);
           }
+
       });
 
       this.setState({students: (response.data.students != null ? response.data.students : '')});
@@ -106,6 +111,7 @@ class StudentPage extends React.Component {
     var token = this.state.token;
 
     axios.post('/update_students', {
+  //  axios.post('https://glacial-sierra-90432.herokuapp.com/update_students', {
       token: token,
       students: students
     })

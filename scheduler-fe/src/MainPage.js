@@ -38,6 +38,12 @@ class MainPage extends React.Component {
     });
   }
 
+  handleToggleNavDrawer () {
+    this.setState({
+      navDrawerOpen: false
+    });
+  }
+
   render() {
     let { navDrawerOpen } = this.state;
     const paddingLeftDrawerOpen = 236;
@@ -65,9 +71,9 @@ class MainPage extends React.Component {
       <MuiThemeProvider muiTheme={ThemeDefault}>
         <div>
 
-          <Header styles={styles.header} handleChangeRequestNavDrawer={this.handleChangeRequestNavDrawer.bind(this)} />
+          <Header styles={styles.header} handleChangeRequestNavDrawer={this.handleChangeRequestNavDrawer.bind(this)}  />
 
-          <LeftDrawer navDrawerOpen={navDrawerOpen} />
+          <LeftDrawer navDrawerOpen={navDrawerOpen} onBlur={this.handleToggleNavDrawer.bind(this)}/>
 
           <div className="container">
             <Route path="/main/profile" component={ProfilePage} />

@@ -17,7 +17,8 @@ class ProfilePage extends React.Component {
       street: '',
       postal: '',
       phone: '',
-      email: ''
+      email: '',
+      snackbarState: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,6 +32,7 @@ class ProfilePage extends React.Component {
     var token = this.state.token;
 
     axios.post('/profile', {
+//    axios.post('https://glacial-sierra-90432.herokuapp.com/profile', {
       token: token
     })
     .then(response => {
@@ -66,6 +68,7 @@ class ProfilePage extends React.Component {
     var token = this.state.token;
 
     axios.post('/update_profile', {
+    //axios.post('https://glacial-sierra-90432.herokuapp.com/update_profile', {
       token: token,
       fname: fname,
       lname: lname,
@@ -93,6 +96,19 @@ handleProvinceChange = (event, index, value) => {
   this.setState({province: value});
 
 }
+
+handleTapTouch = () => {
+  this.setState({
+      snackbarState: true,
+    });
+}
+
+handleRequestClose = () =>{
+  this.setState({
+      snackbarState: false,
+    });
+}
+
   render() {
     var headerStyle = {
       height: this.state.headerHeight
@@ -114,6 +130,9 @@ handleProvinceChange = (event, index, value) => {
           phone={this.state.phone}
           email={this.state.email}
           onProvinceChange={this.handleProvinceChange}
+          snackbarState={this.state.snackbarState}
+          onTapTouch={this.handleTapTouch}
+          onRequestClose={this.handleRequestClose}
         />
       </div>
     );

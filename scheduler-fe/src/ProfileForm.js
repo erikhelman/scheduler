@@ -4,7 +4,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { Card } from 'material-ui/Card';
 import {blue600} from 'material-ui/styles/colors';
 import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem'
+import MenuItem from 'material-ui/MenuItem';
+import Snackbar from 'material-ui/Snackbar';
 
 const ProfileForm = ({
   onSubmit,
@@ -18,7 +19,10 @@ const ProfileForm = ({
   postal,
   phone,
   email,
-  onProvinceChange
+  onProvinceChange,
+  onRequestClose,
+  snackbarState,
+  onTapTouch
  }) => (
    <form action="/" onSubmit={onSubmit}>
 
@@ -128,6 +132,7 @@ const ProfileForm = ({
 
          <TextField
            floatingLabelText="Email"
+           floatingLabelFixed={true}
            type="email"
            name="email"
            onChange={onChange}
@@ -147,6 +152,14 @@ const ProfileForm = ({
          style={customStyle.general}
          backgroundColor = '#1E88E5'
          labelColor = '#FFFFFF'
+         onClick={onTapTouch}
+       />
+       <Snackbar
+         open={snackbarState}
+         style={{textAlign: 'center'}}
+         message="Profile submitted successfully"
+         autoHideDuration={4000}
+         onRequestClose={onRequestClose}
        />
      </div>
    </form>

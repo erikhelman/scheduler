@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardText } from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
-import {blue600} from 'material-ui/styles/colors'
+import {blue600} from 'material-ui/styles/colors';
+import Snackbar from 'material-ui/Snackbar';
 
 const RegistrationForm = ({
   onSubmit,
@@ -12,13 +13,16 @@ const RegistrationForm = ({
   errors,
   email,
   password,
-  name
+  name,
+  onRequestClose,
+  snackbarState,
+  onTapTouch
 }) => (
   <Card className="container">
     <form action="/" onSubmit={onSubmit}>
-      <h2 className="card-heading">Register</h2>
+      <h2 style= {{textAlign: 'center'}} className="card-heading">Register</h2>
 
-      {errors.summary && <p className="error-message">{errors.summary}</p>}
+      {errors.summary && <p style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</p>}
 
       <div className="field-line" >
         <TextField
@@ -67,10 +71,18 @@ const RegistrationForm = ({
           style={customStyle.general}
           backgroundColor = '#1E88E5'
           labelColor = '#FFFFFF'
+          onClick = {onTapTouch}
+        />
+        <Snackbar
+          open={snackbarState}
+          style={{textAlign: 'center'}}
+          message="User successfully registered!"
+          autoHideDuration={4000}
+          onRequestClose={onRequestClose}
         />
       </div>
 
-      <CardText>Already have an account? <Link to={'/'}>Log in</Link></CardText>
+      <CardText style={{textAlign: 'center'}}>Already have an account? <Link to={'/'}>Log in</Link></CardText>
     </form>
   </Card>
 );
