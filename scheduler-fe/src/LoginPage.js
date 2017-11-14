@@ -11,7 +11,8 @@ class LoginPage extends React.Component {
       errors: {},
       name: '',
       password: '',
-      loggedIn: false
+      loggedIn: false,
+      role: ''
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -45,7 +46,7 @@ class LoginPage extends React.Component {
     event.preventDefault();
     const name = this.state.name;
     const password = this.state.password;
-    var self = this;
+    //var self = this;
 
     if (this.validateLoginForm()) {
       axios.post('/login', {
@@ -53,7 +54,7 @@ class LoginPage extends React.Component {
         name: name,
         password: password
       })
-      .then(function (response) {
+      .then(response => {
 
         if (response.status === 200) {
 
@@ -62,16 +63,17 @@ class LoginPage extends React.Component {
             if (response.data.isAuthenticated === "true") {
 
                 sessionStorage.setItem("token", response.data["token"]);
-                self.setState({loggedIn: true});
+                this.setState({role: response.data.role})
+                this.setState({loggedIn: true});
 
             } else {
-              self.setState({errors: {summary: 'Invalid username and/or password'}});
+              this.setState({errors: {summary: response.data.error}});
             }
           } else {
-              self.setState({errors: {summary: 'Invalid response, authentication not validated'}});
+              this.setState({errors: {summary: 'Invalid response, authentication not validated'}});
           }
         } else {
-            self.setState({errors: {summary: "An error has occurred. Please try to login again."}});
+            this.setState({errors: {summary: "An error has occurred. Please try to login again."}});
           }
 
       })
@@ -88,7 +90,8 @@ class LoginPage extends React.Component {
     if (this.state.loggedIn){
       return <Redirect to={{
         pathname: '/main',
-        state: { loggedIn: this.state.loggedIn }
+        state: { role: this.state.role,
+        loggedIn: this.state.loggedIn}
 
       }}/>;
     }

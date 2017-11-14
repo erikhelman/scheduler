@@ -1,6 +1,7 @@
 import React from 'react';
 import ProfileForm from './ProfileForm';
 import axios from 'axios';
+import { parse, format } from 'libphonenumber-js';
 
 class ProfilePage extends React.Component {
   constructor(props) {
@@ -36,7 +37,6 @@ class ProfilePage extends React.Component {
       token: token
     })
     .then(response => {
-
       this.setState({email: (response.data.email != null ? response.data.email : '')});
       this.setState({fname: (response.data.fname != null ? response.data.fname : '')});
       this.setState({lname: (response.data.lname != null ? response.data.lname : '')});
@@ -44,7 +44,7 @@ class ProfilePage extends React.Component {
       this.setState({province: (response.data.province != null ? response.data.province : '')});
       this.setState({street: (response.data.street != null ? response.data.street : '')});
       this.setState({postal: (response.data.postal != null ? response.data.postal : '')});
-      this.setState({phone: (response.data.phone != null ? response.data.phone : '')});
+      this.setState({phone: (response.data.phone != null ? format(response.data.phone, 'CA', 'National') : '')});
 
     })
     .catch(function (error) {
@@ -53,38 +53,60 @@ class ProfilePage extends React.Component {
 
   }
 
+  validateProfileForm = () => {
+
+    let isFormValid = true;
+
+    this.setState({errors: {}});
+
+    if (this.state.phone.length !== 0) {
+
+      let phoneCheck = parse(this.state.phone, "CA")
+      if (phoneCheck.phone == null) {
+        this.setState({errors: {phone: "Please enter a valid phone number"}});
+        isFormValid = false;
+      }
+
+    }
+
+    return isFormValid;
+  }
+
   handleSubmit(event) {
 
     event.preventDefault();
+    if (this.validateProfileForm()) {
+      var fname = this.state.fname;
+      var lname = this.state.lname;
+      var city = this.state.city;
+      var street = this.state.street;
+      var province = this.state.province;
+      var postal = this.state.postal;
+      var phone = parse(this.state.phone, "CA")
+      var email = this.state.email;
+      var token = this.state.token;
 
-    var fname = this.state.fname;
-    var lname = this.state.lname;
-    var city = this.state.city;
-    var street = this.state.street;
-    var province = this.state.province;
-    var postal = this.state.postal;
-    var phone = this.state.phone;
-    var email = this.state.email;
-    var token = this.state.token;
-
-    axios.post('/update_profile', {
-    //axios.post('https://glacial-sierra-90432.herokuapp.com/update_profile', {
-      token: token,
-      fname: fname,
-      lname: lname,
-      city: city,
-      street: street,
-      province: province,
-      postal: postal,
-      phone: phone,
-      email: email
-    })
-    .then(response => {
-
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      axios.post('/update_profile', {
+      //axios.post('https://glacial-sierra-90432.herokuapp.com/update_profile', {
+        token: token,
+        fname: fname,
+        lname: lname,
+        city: city,
+        street: street,
+        province: province,
+        postal: postal,
+        phone: (phone.phone != null ? phone.phone : ''),
+        email: email
+      })
+      .then(response => {
+        if (response.data.profileUpdate === "true") {
+          this.setState({snackbarState: true});
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
 
   }
 
@@ -97,11 +119,6 @@ handleProvinceChange = (event, index, value) => {
 
 }
 
-handleTapTouch = () => {
-  this.setState({
-      snackbarState: true,
-    });
-}
 
 handleRequestClose = () =>{
   this.setState({
@@ -131,7 +148,6 @@ handleRequestClose = () =>{
           email={this.state.email}
           onProvinceChange={this.handleProvinceChange}
           snackbarState={this.state.snackbarState}
-          onTapTouch={this.handleTapTouch}
           onRequestClose={this.handleRequestClose}
         />
       </div>

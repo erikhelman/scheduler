@@ -32,6 +32,7 @@ const LeftDrawer = (props) => {
           <div style={styles.logo}>
             Navigation
           </div>
+
           <MenuItem
             style={styles.menuItem}
             containerElement={<Link to='/main/profile' />}>
@@ -40,12 +41,17 @@ const LeftDrawer = (props) => {
           <MenuItem
             style={styles.menuItem}
             containerElement={<Link to='/main/student' />}>
-            Student
+            Student Information
           </MenuItem>
           <MenuItem
             style={styles.menuItem}
             containerElement={<Link to='/main/all_students' />}>
             All Students
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/all_users' />}>
+            All Users
           </MenuItem>
         </Drawer>
     );

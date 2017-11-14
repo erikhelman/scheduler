@@ -3,17 +3,17 @@ import { Button, Checkbox, Icon, Table } from 'semantic-ui-react';
 import { Segment } from 'semantic-ui-react'
 
 
-const AllStudentsForm = ({
+const AllUsersForm = ({
   handleRowClick,
   onChange,
   handleCheckChange,
   errors,
-  students,
+  users,
   checkValue,
   handleEditClick
  }) => (
    <div>
-
+     
      <Segment raised>
        <Table collapsing compact celled definition>
          <Table.Header>
@@ -26,19 +26,19 @@ const AllStudentsForm = ({
 
 
          <Table.Body>
-           {students.map(student => <Table.Row key={student.student_id} onClick = {handleRowClick.bind(this, student)}>
+           {users.map(user => <Table.Row key={user.id} onClick = {handleRowClick.bind(this, user)}>
              <Table.Cell collapsing>
                <Checkbox
                  name='checkboxGroup'
-                 value={student.student_id}
-                 checked={checkValue === student.student_id}
+                 value={user.id}
+                 checked={checkValue === user.id}
                  onChange={handleCheckChange}/>
              </Table.Cell>
              <Table.Cell
-               children = {student.fname}>
+               children = {user.fname}>
              </Table.Cell>
              <Table.Cell
-               children = {student.lname}>
+               children = {user.lname}>
              </Table.Cell>
            </Table.Row>)}
          </Table.Body>
@@ -63,4 +63,4 @@ const AllStudentsForm = ({
    </div>
      )
 
-     export default AllStudentsForm;
+     export default AllUsersForm;

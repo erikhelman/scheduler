@@ -9,6 +9,9 @@ import ProfilePage from './ProfilePage';
 import { Route } from 'react-router-dom';
 import StudentPage from './StudentPage';
 import AllStudentsPage from './AllStudentsPage';
+import AdminStudentPage from './AdminStudentPage';
+import AdminUserPage from './AdminUserPage';
+import AllUsersPage from './AllUsersPage';
 //import { Redirect } from 'react-router-dom';
 
 class MainPage extends React.Component {
@@ -17,13 +20,15 @@ class MainPage extends React.Component {
     super(props);
     this.state = {
       navDrawerOpen: false,
-      loggedIn: false
+      loggedIn: false,
+      role: ''
     };
   }
 
   componentWillMount () {
+    this.setState({loggedIn: (this.props.location.state.loggedIn != null ? this.props.location.state.loggedIn : false)});
+    this.setState({role: this.props.location.state.role});
 
-    this.setState({loggedIn: (this.props.location.state != null ? this.props.location.state : false)});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -73,12 +78,15 @@ class MainPage extends React.Component {
 
           <Header styles={styles.header} handleChangeRequestNavDrawer={this.handleChangeRequestNavDrawer.bind(this)}  />
 
-          <LeftDrawer navDrawerOpen={navDrawerOpen} onBlur={this.handleToggleNavDrawer.bind(this)}/>
+          <LeftDrawer navDrawerOpen={navDrawerOpen} onBlur={this.handleToggleNavDrawer.bind(this)} role={this.state.role}/>
 
           <div className="container">
             <Route path="/main/profile" component={ProfilePage} />
             <Route path="/main/student" component={StudentPage} />
             <Route path="/main/all_students" component={AllStudentsPage} />
+            <Route path="/main/all_users" component={AllUsersPage} />
+            <Route path="/main/admin_student_page" component={AdminStudentPage} />
+            <Route path="/main/admin_user_page" component={AdminUserPage} />
           </div>
 
         </div>

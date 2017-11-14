@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 import { Card } from 'material-ui/Card';
 import {blue600} from 'material-ui/styles/colors';
 import Divider from 'material-ui/Divider';
+import Snackbar from 'material-ui/Snackbar';
 
 const StudentForm = ({
   onChange,
@@ -19,7 +20,9 @@ const StudentForm = ({
   onDateChange,
   onClassTypeChange,
   onClassLengthChange,
-  onLevelChange
+  onLevelChange,
+  onRequestClose,
+  snackbarState
  }) => (
 
      <form onSubmit={onSubmit}>
@@ -106,6 +109,7 @@ const StudentForm = ({
                floatingLabelFocusStyle={customStyle.colorStyle}
                onChange={onChange(idx)}
                value={student.emerg_phone}
+               errorText={student.errors !== undefined ? student.errors.emerg_phone : ''}
              />
            </div>
            <Divider />
@@ -213,6 +217,13 @@ const StudentForm = ({
            labelColor = '#FFFFFF'
          />
        </div>
+       <Snackbar
+         open={snackbarState}
+         style={{textAlign: 'center'}}
+         message="Student information updated successfully!"
+         autoHideDuration={3000}
+         onRequestClose={onRequestClose}
+       />
      </form>
 
      )

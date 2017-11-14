@@ -21,8 +21,7 @@ const ProfileForm = ({
   email,
   onProvinceChange,
   onRequestClose,
-  snackbarState,
-  onTapTouch
+  snackbarState
  }) => (
    <form action="/" onSubmit={onSubmit}>
 
@@ -37,7 +36,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.fname}
            value={fname}
          />
 
@@ -49,7 +48,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.lname}
            value={lname}
          />
        </div>
@@ -62,7 +61,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.street}
            value={street}
          />
        </div>
@@ -75,7 +74,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.city}
            value={city}
          />
 
@@ -87,7 +86,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onProvinceChange}
-           errorText={errors.name}
+           errorText={errors.province}
            value={province}
          >
            <MenuItem value={"ON"} primaryText="Ontario" />
@@ -113,7 +112,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.postal}
            value={postal}
          />
        </div>
@@ -126,7 +125,7 @@ const ProfileForm = ({
            underlineFocusStyle={customStyle.underlineStyle}
            floatingLabelFocusStyle={customStyle.colorStyle}
            onChange={onChange}
-           errorText={errors.name}
+           errorText={errors.phone}
            value={phone}
          />
 
@@ -152,13 +151,12 @@ const ProfileForm = ({
          style={customStyle.general}
          backgroundColor = '#1E88E5'
          labelColor = '#FFFFFF'
-         onClick={onTapTouch}
        />
        <Snackbar
          open={snackbarState}
          style={{textAlign: 'center'}}
          message="Profile submitted successfully"
-         autoHideDuration={4000}
+         autoHideDuration={3000}
          onRequestClose={onRequestClose}
        />
      </div>

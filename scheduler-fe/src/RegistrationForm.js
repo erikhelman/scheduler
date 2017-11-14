@@ -15,8 +15,7 @@ const RegistrationForm = ({
   password,
   name,
   onRequestClose,
-  snackbarState,
-  onTapTouch
+  snackbarState
 }) => (
   <Card className="container">
     <form action="/" onSubmit={onSubmit}>
@@ -71,13 +70,12 @@ const RegistrationForm = ({
           style={customStyle.general}
           backgroundColor = '#1E88E5'
           labelColor = '#FFFFFF'
-          onClick = {onTapTouch}
         />
         <Snackbar
           open={snackbarState}
           style={{textAlign: 'center'}}
           message="User successfully registered!"
-          autoHideDuration={4000}
+          autoHideDuration={3000}
           onRequestClose={onRequestClose}
         />
       </div>

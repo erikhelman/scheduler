@@ -49,6 +49,8 @@ class RegistrationPage extends React.Component {
 
     event.preventDefault();
 
+    this.setState({snackbarState: false});
+
     const email = this.state.email;
     const password = this.state.password;
     const name = this.state.name;
@@ -61,11 +63,24 @@ class RegistrationPage extends React.Component {
         password: password,
         email: email
       })
-      .then(function (response) {
-        console.log(response);
+      .then(response => {
+        console.log(response.data.isRegistered);
+        if (response.data.isRegistered === "true") {
+          this.setState({snackbarState: true});
+        } else {
+          this.setState({errors: {summary: response.data.errors}});
+        }
       })
       .catch(function (error) {
-        this.setState({errors: {summary: error}});
+        if (error.response) {
+            console.log("response " + error.response);
+        } else if (error.request) {
+            console.log("Request" + error.request);
+        } else {
+            console.log('Error', error.message);
+        }
+        console.log("config " + error.config);
+        //this.setState({errors: {summary: error}});
       });
     }
   }
@@ -74,17 +89,11 @@ class RegistrationPage extends React.Component {
     this.setState({ [event.target.name] : event.target.value});
   }
 
-  handleTapTouch = () => {
-    this.setState({
-        snackbarState: true,
-      });
-  }
-
-  handleRequestClose = () =>{
+  handleRequestClose = () => {
     this.setState({
         snackbarState: false,
       });
-  }
+    }
 
   render() {
     return (
@@ -96,7 +105,6 @@ class RegistrationPage extends React.Component {
         password={this.state.password}
         email={this.state.email}
         snackbarState={this.state.snackbarState}
-        onTapTouch={this.handleTapTouch}
         onRequestClose={this.handleRequestClose}
       />
     );

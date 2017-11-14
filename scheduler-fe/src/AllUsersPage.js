@@ -1,9 +1,9 @@
 import React from 'react';
 import axios from 'axios';
-import AllStudentsForm from './AllStudentsForm';
+import AllUsersForm from './AllUsersForm';
 import { Redirect } from 'react-router-dom';
 
-class AllStudentsPage extends React.Component {
+class AllUsersPage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -11,7 +11,7 @@ class AllStudentsPage extends React.Component {
       headerHeight: '',
       errors: {},
       token: sessionStorage.getItem("token"),
-      students: [],
+      users: [],
       loggedIn: '',
       selected: '',
       checkValue: 'none',
@@ -21,7 +21,7 @@ class AllStudentsPage extends React.Component {
     this.handleEditClick = this.handleEditClick.bind(this);
   };
 
-  handleRowClick = (student) => {
+  handleRowClick = (user) => {
 
   }
 
@@ -36,12 +36,12 @@ class AllStudentsPage extends React.Component {
     var token = this.state.token;
     var self = this;
 
-    axios.post('/all_students', {
+    axios.post('/all_users', {
     //axios.post('https://glacial-sierra-90432.herokuapp.com/all_students', {
       token: token
     })
     .then(response => {
-      self.setState({students: response.data.students});
+      self.setState({users: response.data.users});
     })
     .catch(function (error) {
       console.log(error);
@@ -66,7 +66,7 @@ class AllStudentsPage extends React.Component {
 
       if (this.state.doRedirect) {
         return <Redirect to={{
-          pathname: '/main/admin_student_page',
+          pathname: '/main/admin_user_page',
           state: { id: this.state.checkValue }
 
         }}/>;
@@ -80,11 +80,11 @@ class AllStudentsPage extends React.Component {
 
         <div>
           <div style={headerStyle}></div>
-          <AllStudentsForm
+          <AllUsersForm
             handleRowClick={this.handleRowClick}
             onChange={this.handleInputChange}
             errors={this.state.errors}
-            students={this.state.students}
+            users={this.state.users}
             handleCheckChange={this.handleCheckChange}
             checkValue={this.state.checkValue}
             handleEditClick={this.handleEditClick}
@@ -94,4 +94,4 @@ class AllStudentsPage extends React.Component {
   }
 }
 
-export default AllStudentsPage;
+export default AllUsersPage;
