@@ -8,7 +8,6 @@ class AllUsersPage extends React.Component {
     super(props);
 
     this.state = {
-      headerHeight: '',
       errors: {},
       token: sessionStorage.getItem("token"),
       users: [],
@@ -31,13 +30,11 @@ class AllUsersPage extends React.Component {
 
   componentDidMount () {
 
-    this.setState({headerHeight: document.getElementById('header').clientHeight});
-
     var token = this.state.token;
     var self = this;
 
     axios.post('/all_users', {
-    //axios.post('https://glacial-sierra-90432.herokuapp.com/all_students', {
+    //axios.post('https://glacial-sierra-90432.herokuapp.com/all_users', {
       token: token
     })
     .then(response => {
@@ -72,14 +69,9 @@ class AllUsersPage extends React.Component {
         }}/>;
       }
 
-      var headerStyle = {
-        height: this.state.headerHeight
-      };
-
       return (
 
         <div>
-          <div style={headerStyle}></div>
           <AllUsersForm
             handleRowClick={this.handleRowClick}
             onChange={this.handleInputChange}

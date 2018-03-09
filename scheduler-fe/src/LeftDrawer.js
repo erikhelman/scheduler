@@ -67,8 +67,38 @@ const LeftDrawer = (props) => {
         );
     } else {
       return (
-            <Drawer open={navDrawerOpen}>
-            </Drawer>
+        <Drawer
+          open={navDrawerOpen}
+        >
+          <div style={styles.logo}>
+            Navigation
+          </div>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/profile' />}>
+            Profile
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/student' />}>
+            Student Information
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/all_students' />}>
+            All Students
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/all_users' />}>
+            All Users
+          </MenuItem>
+          <MenuItem
+            style={styles.menuItem}
+            containerElement={<Link to='/main/instructor_page' />}>
+            Add/Edit Instructors
+          </MenuItem>
+        </Drawer>
           );
     }
 

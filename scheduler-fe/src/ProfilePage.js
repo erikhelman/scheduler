@@ -8,7 +8,6 @@ class ProfilePage extends React.Component {
     super(props);
 
     this.state = {
-      headerHeight: '',
       errors: {},
       token: sessionStorage.getItem("token"),
       fname: '',
@@ -18,18 +17,15 @@ class ProfilePage extends React.Component {
       street: '',
       postal: '',
       phone: '',
-      email: '',
-      snackbarState: false
+      email: ''
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleProvinceChange = this.handleProvinceChange.bind(this);
   }
 
   componentDidMount () {
-
-    this.setState({headerHeight: document.getElementById('header').clientHeight});
-
     var token = this.state.token;
 
     axios.post('/profile', {
@@ -56,6 +52,7 @@ class ProfilePage extends React.Component {
   validateProfileForm = () => {
 
     let isFormValid = true;
+    let error = {};
 
     this.setState({errors: {}});
 
@@ -63,7 +60,11 @@ class ProfilePage extends React.Component {
 
       let phoneCheck = parse(this.state.phone, "CA")
       if (phoneCheck.phone == null) {
-        this.setState({errors: {phone: "Please enter a valid phone number"}});
+
+        error.phone = true;
+        error.summary = 'Please enter a valid phone number';
+
+        this.setState({errors: error});
         isFormValid = false;
       }
 
@@ -76,15 +77,15 @@ class ProfilePage extends React.Component {
 
     event.preventDefault();
     if (this.validateProfileForm()) {
-      var fname = this.state.fname;
-      var lname = this.state.lname;
-      var city = this.state.city;
-      var street = this.state.street;
-      var province = this.state.province;
-      var postal = this.state.postal;
-      var phone = parse(this.state.phone, "CA")
-      var email = this.state.email;
-      var token = this.state.token;
+      let fname = this.state.fname;
+      let lname = this.state.lname;
+      let city = this.state.city;
+      let street = this.state.street;
+      let province = this.state.province;
+      let postal = this.state.postal;
+      let phone = parse(this.state.phone, "CA")
+      let email = this.state.email;
+      let token = this.state.token;
 
       axios.post('/update_profile', {
       //axios.post('https://glacial-sierra-90432.herokuapp.com/update_profile', {
@@ -100,7 +101,7 @@ class ProfilePage extends React.Component {
       })
       .then(response => {
         if (response.data.profileUpdate === "true") {
-          this.setState({snackbarState: true});
+          
         }
       })
       .catch(function (error) {
@@ -114,26 +115,17 @@ handleInputChange(event) {
     this.setState({ [event.target.name] : event.target.value});
 }
 
-handleProvinceChange = (event, index, value) => {
-  this.setState({province: value});
+handleProvinceChange(event, data) {
+
+  this.setState({province: data.value});
 
 }
 
-
-handleRequestClose = () =>{
-  this.setState({
-      snackbarState: false,
-    });
-}
 
   render() {
-    var headerStyle = {
-      height: this.state.headerHeight
-    };
 
     return (
       <div>
-        <div style={headerStyle}></div>
         <ProfileForm
           onSubmit={this.handleSubmit}
           onChange={this.handleInputChange}
@@ -147,8 +139,6 @@ handleRequestClose = () =>{
           phone={this.state.phone}
           email={this.state.email}
           onProvinceChange={this.handleProvinceChange}
-          snackbarState={this.state.snackbarState}
-          onRequestClose={this.handleRequestClose}
         />
       </div>
     );

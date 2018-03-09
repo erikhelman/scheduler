@@ -8,7 +8,6 @@ class AllStudentsPage extends React.Component {
     super(props);
 
     this.state = {
-      headerHeight: '',
       errors: {},
       token: sessionStorage.getItem("token"),
       students: [],
@@ -21,17 +20,11 @@ class AllStudentsPage extends React.Component {
     this.handleEditClick = this.handleEditClick.bind(this);
   };
 
-  handleRowClick = (student) => {
-
-  }
-
   handleCheckChange = (e, { value }) => {
     this.setState({ checkValue: value });
   }
 
   componentDidMount () {
-
-    this.setState({headerHeight: document.getElementById('header').clientHeight});
 
     var token = this.state.token;
     var self = this;
@@ -56,11 +49,13 @@ class AllStudentsPage extends React.Component {
     }
   }
 
-
-
   handleInputChange(event) {
     this.setState({ [event.target.name] : event.target.value});
   }
+
+  handleRowClick = (student) => {
+
+}
 
   render() {
 
@@ -72,14 +67,9 @@ class AllStudentsPage extends React.Component {
         }}/>;
       }
 
-      var headerStyle = {
-        height: this.state.headerHeight
-      };
-
       return (
 
-        <div>
-          <div style={headerStyle}></div>
+        
           <AllStudentsForm
             handleRowClick={this.handleRowClick}
             onChange={this.handleInputChange}
@@ -89,7 +79,7 @@ class AllStudentsPage extends React.Component {
             checkValue={this.state.checkValue}
             handleEditClick={this.handleEditClick}
           />
-        </div>
+
     );
   }
 }

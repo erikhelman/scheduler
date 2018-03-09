@@ -1,51 +1,55 @@
 from flask import Flask, jsonify, render_template, request, url_for, redirect, json
 from security import pwd_context
 import uuid
-import datetime
+from send_email import send_mail
 import jwt
-import scheduler
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_cors import CORS
+import string
+import random
+from time import time
+
 
 app = Flask(__name__)
-#CORS(app, resources={r"/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
-CORS(app, resources={r"https://floating-fortress-53646.herokuapp.com/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erik:postgres@localhost:5432/scheduler'
 
 app.config.from_pyfile('config.py')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-#app.config['SECRET_KEY'] = 'secret'
+
+CORS(app, resources={r"https://floating-fortress-53646.herokuapp.com/*": {"origins": "*"}, r"/*": {"supports_credentials": True}})
 
 db = SQLAlchemy(app)
 url = "https://glacial-sierra-90432.herokuapp.com/"
 
+
 class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
-    username = db.Column(db.String(50), unique=True)
+    first_name = db.Column(db.String(25))
+    last_name = db.Column(db.String(25))
     password = db.Column(db.String(100))
-    active = db.Column(db.Boolean)
+    status = db.Column(db.String(10)) # active, inactive, pending
     role = db.Column(db.String(5))
     email = db.Column(db.String(50))
     students = db.relationship('Students', backref='login', lazy='dynamic')
     info = db.relationship('Profile', backref='users', uselist=False)
 
+
 class Students(db.Model):
     student_id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(50))
-    phone_number = db.Column(db.String(10))
-    fname = db.Column(db.String(50))
-    lname = db.Column(db.String(50))
+    fname = db.Column(db.String(25))
+    lname = db.Column(db.String(25))
     gender = db.Column(db.String(1))
-    dob = db.Column(db.Date)
-    level = db.Column(db.String(10))
+    dob = db.Column(db.DateTime(timezone=True))
+    level = db.Column(db.Integer)
     class_type = db.Column(db.String(30))
     class_length = db.Column(db.Integer)
-    status = db.Column(db.String(20))
-    emerg_contact = db.Column(db.String(40))
+    status = db.Column(db.String(20)) # values = Active, Inactive
+    emerg_contact = db.Column(db.String(50))
     emerg_phone = db.Column(db.String(10))
+    previous_school = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+
 
 class Profile(db.Model):
     info_id = db.Column(db.Integer, primary_key=True)
@@ -59,23 +63,20 @@ class Profile(db.Model):
     phone = db.Column(db.String(10))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
-@app.route('/')
-def show_all():
-    return render_template('main.html')
 
 @app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
 
         data = json.loads(request.data.decode('utf8'))
-        name = data['name'].lower()
+        email = data['email'].lower()
         password = data['password']
 
-        user = Users.query.filter(Users.username == name).first()
+        user = Users.query.filter(Users.email == email).first()
 
         if user:
 
-            if user.active != False:
+            if user.status == 'active':
 
                 if pwd_context.verify(password,user.password):
 
@@ -83,56 +84,79 @@ def login():
                     token = (jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode("utf-8"))
                     return jsonify({"isAuthenticated": "true", "role": user.role, "token": token})
 
-                return jsonify({"isAuthenticated": "false", "error": "Username and/or password are incorrect."})
+                return jsonify({"isAuthenticated": "false", "error": "Email address and/or password are incorrect."})
 
-            return jsonify({"isAuthenticated": "false", "error": "This account has been deactivated. Please contact your administrator."})
+            elif user.status == 'inactive':
+
+                return jsonify({"isAuthenticated": "false",
+                                "error": "This account has been deactivated. Please contact info@championswimming.ca for more details."})
+
+            elif user.status == 'pending':
+
+                return jsonify({"isAuthenticated": "false",
+                                "error": "This account has not yet been activated. Champion Swimming will contact you with further details."})
 
         return jsonify({"isAuthenticated": "false", "error": "Username and/or password are incorrect."})
 
     return ''
+
 
 @app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         payload = request.data.decode('utf8')
         data = json.loads(payload)
-        name = data['name'].lower().strip()
 
-        if (Users.query.filter(Users.username == data['name']).first() == None):
-            password = data['password']
-            email=data['email']
+        email = data['email'].lower().strip()
+        password = data['password']
 
-            profile = Profile(fname = None,
-                              lname = None,
-                              customer_id = None,
-                              city = None,
-                              province = None,
-                              street = None,
-                              postal = None,
-                              phone = None)
-
-            student = Students(fname = None,
-                               lname = None,
-                               gender = None,
-                               dob = None,
-                               level = None,
-                               class_type = None,
-                               class_length = None,
-                               status = None)
+        if Users.query.filter(Users.email == email).first() is None:
 
             user = Users(public_id=uuid.uuid4(),
-                         username=name,
                          password=pwd_context.hash(password),
-                         active=True,
+                         status='pending',
                          role='user',
-                         email=email,
-                         students= [student],
-                         info=profile)
+                         email=email)
+
+            user.info = Profile(fname=data['fname'],
+                                lname=data['lname'],
+                                customer_id=None,
+                                city=None,
+                                province=None,
+                                street=None,
+                                postal=None,
+                                phone=data['phone'])
+
+            for s in data['students']:
+
+                with open('student.txt', 'w') as f:
+                    json.dump(s, f)
+
+                new_student = Students(fname=s['fname'],
+                                       lname=s['lname'],
+                                       gender=s['gender'],
+                                       dob=s['dob'],
+                                       level=s['level'],
+                                       class_type=s['class_type'],
+                                       class_length=s['class_length'],
+                                       status='Pending',
+                                       emerg_contact=None,
+                                       emerg_phone=None,
+                                       previous_school=s['previous_school'])
+
+                user.students.append(new_student)
 
             db.session.add(user)
             db.session.commit()
 
-            return jsonify({"isRegistered": "true" })
+            send_mail(
+                'helman.erik@gmail.com',
+                'Registration - Action Required',
+                'A new user has registered in the system, ' + data['fname'] + ' ' + data['lname']+ '.'
+
+            )
+
+            return jsonify({"isRegistered": "true"})
 
         else:
             return jsonify({"isRegistered": "false",
@@ -140,13 +164,13 @@ def register():
 
     return ''
 
+
 @app.route('/profile', methods=['POST'])
 def get_profile():
 
     if request.method == 'POST':
         payload = request.data.decode('utf8')
         data = json.loads(payload)
-
 
         try:
             token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
@@ -175,6 +199,7 @@ def get_profile():
             return jsonify(user_profile)
 
     return ''
+
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
@@ -217,14 +242,12 @@ def update_profile():
 
     return ''
 
+
 @app.route('/students', methods=['POST'])
 def get_students():
     if request.method == 'POST':
         payload = request.data.decode('utf8')
         data = json.loads(payload)
-
-        #with open ('testfile.txt','w') as f:
-        #    json.dump(data, f)
 
         try:
             token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
@@ -247,9 +270,7 @@ def get_students():
                 new_student = {'student_id': s.student_id,
                                'fname': s.fname if s.fname != None else '',
                                'lname': s.lname if s.lname != None else '',
-                               #'email': s.email,
-                               'dob': s.dob if s.dob != None else '',
-                               'phone': s.phone_number if s.phone_number != None else '',
+                               'dob': s.dob.isoformat() if s.dob != None else s.dob,
                                'gender': s.gender if s.gender != None else '',
                                'level': s.level if s.level != None else '',
                                'class_type': s.class_type if s.gender != None else '',
@@ -264,6 +285,7 @@ def get_students():
 
     return ''
 
+
 @app.route('/update_students', methods=['POST'])
 def update_students():
     if request.method == 'POST':
@@ -272,7 +294,6 @@ def update_students():
 
         with open ('testfile.txt','w') as f:
             json.dump(data, f)
-
 
         try:
             token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
@@ -299,7 +320,7 @@ def update_students():
 
                             match = True
 
-                    if match == False:
+                    if not match:
 
                         Students.query.filter(Students.student_id==es.student_id).delete()
 
@@ -311,17 +332,14 @@ def update_students():
 
                 if 'dob' in s:
 
-                    if s['dob'] != None and s['dob'] != '':
-
-                        x = s['dob'].replace('-', '')
-                        date = datetime.datetime.strptime(x[:8], "%Y%m%d").date()
+                    if s['dob'] != '':
+                        date = s['dob']
 
                 if 'class_length' in s:
 
                     if s['class_length'] != '':
 
                         class_length = s['class_length']
-
 
                 if 'emerg_phone' in s:
 
@@ -330,7 +348,6 @@ def update_students():
                         emerg_phone = s['emerg_phone']
 
                 if s['student_id'] == str(-1):
-
 
                     new_student = Students(fname = s['fname'] if 'fname' in s else None,
                                            lname=s['lname'] if 'lname' in s else None,
@@ -362,9 +379,30 @@ def update_students():
             db.session.add(user)
             db.session.commit()
 
-            return jsonify({"studentUpdate": "true"})
+            userdata = {}
+            userdata['students'] = []
+
+            for s in user.students:
+                new_student = {'student_id': s.student_id,
+                               'fname': s.fname if s.fname != None else '',
+                               'lname': s.lname if s.lname != None else '',
+                               'dob': s.dob.isoformat() if s.dob != None else s.dob,
+                               'gender': s.gender if s.gender != None else '',
+                               'level': s.level if s.level != None else '',
+                               'class_type': s.class_type if s.gender != None else '',
+                               'class_length': s.class_length if s.class_length != None else '',
+                               'status': s.status if s.status != None else '',
+                               'emerg_contact': s.emerg_contact if s.emerg_contact != None else '',
+                               'emerg_phone': s.emerg_phone if s.emerg_phone != None else ''}
+
+                userdata['students'].append(new_student)
+
+            userdata['studentUpdate'] = True
+
+            return jsonify(userdata)
 
     return ''
+
 
 @app.route('/update_admin_student', methods=['POST'])
 def update_admin_student():
@@ -393,15 +431,14 @@ def update_admin_student():
             class_length = None
             emerg_phone = None
 
-            if data['dob'] != None and data['dob'] != '':
+            if 'dob' in s:
 
-                x = data['dob'].replace('-', '')
-                date = datetime.datetime.strptime(x[:8], "%Y%m%d").date()
+                if s['dob'] != '':
+                    date = s['dob']
 
             if data['class_length'] != '':
 
                 class_length = data['class_length']
-
 
             if data['emerg_phone'] != '':
 
@@ -424,6 +461,7 @@ def update_admin_student():
 
     return ''
 
+
 @app.route('/admin_student', methods=['POST'])
 def get_admin_student():
     if request.method == 'POST':
@@ -432,7 +470,6 @@ def get_admin_student():
 
         with open ('testfile.txt','w') as f:
             json.dump(data, f)
-
 
         try:
             token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
@@ -447,13 +484,10 @@ def get_admin_student():
             student_id = data['id']
             s = Students.query.filter(Students.student_id == student_id).first()
 
-
             userdata = {'student_id': s.student_id,
                            'fname': s.fname if s.fname != None else '',
                            'lname': s.lname if s.lname != None else '',
-                           # 'email': s.email,
-                           'dob': s.dob if s.dob != None else '',
-                           'phone': s.phone_number if s.phone_number != None else '',
+                           'dob': s.dob.isoformat() if s.dob != None else s.dob,
                            'gender': s.gender if s.gender != None else '',
                            'level': s.level if s.level != None else '',
                            'class_type': s.class_type if s.gender != None else '',
@@ -494,9 +528,7 @@ def get_all_students():
                 new_student = {'student_id': s.student_id,
                                'fname': s.fname,
                                'lname': s.lname,
-                               'email': s.email,
                                'dob': s.dob,
-                               'phone': s.phone_number,
                                'gender': s.gender,
                                'level': s.level,
                                'class_type': s.class_type,
@@ -508,6 +540,7 @@ def get_all_students():
                 userdata['students'].append(new_student)
 
             return jsonify(userdata)
+
 
 @app.route('/all_users', methods=['POST'])
 def get_all_users():
@@ -533,13 +566,12 @@ def get_all_users():
             for u in all_users:
 
                 new_user = {'id': u.public_id,
-                            'username': u.username,
-                            'active': u.active,
+                            'status': u.status,
                             'email': u.email,
                             'role': u.role,
                             'fname': u.info.fname,
                             'lname': u.info.lname,
-                            'customer_id': u.info.customer_id,
+                            'customerID': u.info.customer_id,
                             'city': u.info.city,
                             'province': u.info.province,
                             'street': u.info.street,
@@ -550,6 +582,7 @@ def get_all_users():
 
         return jsonify(userdata)
     return ''
+
 
 @app.route('/admin_user', methods=['POST'])
 def get_admin_user():
@@ -576,13 +609,12 @@ def get_admin_user():
 
 
             userdata = {'id': u.public_id,
-                        'username': u.username,
-                        'active': u.active,
+                        'status': u.status,
                         'role': u.role,
                         'fname': u.info.fname if u.info.fname != None else '',
                         'lname': u.info.lname if u.info.lname != None else '',
                         'email': u.email,
-                        'customer_id': u.info.customer_id if u.info.customer_id != None else '',
+                        'customerID': u.info.customer_id if u.info.customer_id != None else '',
                         'phone': u.info.phone if u.info.phone != None else '',
                         'city': u.info.city if u.info.city != None else '',
                         'province': u.info.province if u.info.province != None else '',
@@ -593,6 +625,7 @@ def get_admin_user():
 
     return ''
 
+
 @app.route('/update_admin_user', methods=['POST'])
 def update_admin_user():
     if request.method == 'POST':
@@ -601,7 +634,6 @@ def update_admin_user():
 
         with open ('testfile.txt','w') as f:
             json.dump(data, f)
-
 
         try:
             token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
@@ -622,17 +654,17 @@ def update_admin_user():
 
                 phone = data['phone']
 
-            u.info.fname = data['fname'] if data['fname'] != '' else None
-            u.info.lname = data['lname'] if data['lname'] != '' else None
+            u.info.fname = data['fname']
+            u.info.lname = data['lname']
             u.role = data['role'] if data['role'] != '' else None
-            u.active = data['active'] if data['active'] != '' else None
-            u.info.customer_id = data['customer_id'] if data['customer_id'] != '' else None
-            u.city = data['city'] if data['city'] != '' else None
-            u.info.province = data['province'] if data['province'] != '' else None
-            u.info.street=data['street'] if data['street'] != '' else None
-            u.info.postal=data['postal'] if data['postal'] != '' else None
+            u.status = data['status']
+            u.info.customer_id = data['customerID'] if 'customerID' in 'data' and data['customerID'] !='' else None
+            u.city = data['city'] if 'city' in  data else ''
+            u.info.province = data['province'] if 'province' in data else ''
+            u.info.street=data['street'] if 'street' in data else ''
+            u.info.postal=data['postal'] if 'postal' in data else ''
             u.info.phone=phone
-            u.email = data['email'] if data['email'] != '' else None
+            u.email = data['email']
 
             db.session.add(u)
             db.session.commit()
@@ -642,22 +674,149 @@ def update_admin_user():
     return ''
 
 
-
-@app.route('/delete', methods=['GET', 'POST'])
-def delete_students():
+@app.route('/instructors', methods=['POST'])
+def get_instructors():
     if request.method == 'POST':
-        delete_name = request.form['delete_name']
-        Students.query.filter(Students.fname == delete_name).delete()
-        db.session.commit()
-    return render_template('delete.html')
 
-@app.route('/search', methods=['GET', 'POST'])
-def search_students():
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+
+            all_instructors = Users.query.filter(Users.role=='inst').order_by(Users.user_id).all()
+            userdata = {}
+            userdata['instructors'] = []
+
+            for i in all_instructors:
+
+                new_instructor = {'id': i.public_id,
+                                  'username': i.username,
+                                  'email': i.email,
+                                  'status': i.status,
+                                  'fname': i.info.fname,
+                                  'lname': i.info.lname,
+                                  'phone': i.info.phone}
+
+                userdata['instructors'].append(new_instructor)
+
+            return jsonify(userdata)
+
+
+@app.route('/add_instructor', methods=['POST'])
+def add_instructor():
     if request.method == 'POST':
-        search_string = request.form['search_string']
-        return render_template('search.html', students = Students.query.filter((Students.lname == search_string)|(Students.fname == search_string)).all())
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+        username = data['username'].lower().strip()
 
-    return render_template('search.html')
+        try:
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+
+            if data['phone'] == '':
+                data['phone'] = None
+
+            if Users.query.filter(Users.username == data['username']).first() is None:
+                password = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+
+                instructor_profile = Profile(fname = data['fname'],
+                                             lname = data['lname'],
+                                             customer_id = None,
+                                             city = None,
+                                             province = None,
+                                             street = None,
+                                             postal = None,
+                                             phone = data['phone'])
+
+                instructor = Users(public_id=uuid.uuid4(),
+                                   username=username,
+                                   password=pwd_context.hash(password),
+                                   status='active',
+                                   role='inst',
+                                   email=data['email'],
+                                   info=instructor_profile)
+
+                db.session.add(instructor)
+                db.session.commit()
+
+                all_instructors=Users.query.filter(Users.role=='inst').order_by(Users.user_id).all()
+                userdata = {}
+                userdata['instructors'] = []
+                for i in all_instructors:
+                    new_instructor = {'id': i.public_id,
+                                'username': i.username,
+                                'status': i.status,
+                                'email': i.email,
+                                'fname': i.info.fname,
+                                'lname': i.info.lname,
+                                'phone': i.info.phone}
+
+                    userdata['instructors'].append(new_instructor)
+
+                userdata['isRegistered'] = True
+
+                return jsonify(userdata)
+
+            else:
+                return jsonify({"isRegistered": "false",
+                                "errors": "This user name already exists, please select a different one."})
+
+    return ''
+
+
+@app.route('/recovery', methods=['POST'])
+def password_recovery():
+    if request.method == 'POST':
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        email = data['email'].lower()
+        expiry = 3600
+
+        with open ('testfile.txt','w') as f:
+            json.dump(data, f)
+
+        user = Users.query.filter(Users.email == email).first()
+
+        if user:
+
+            token_data = {'user_id': user.public_id, 'exp': time() + expiry}
+            token = (jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256').decode("utf-8"))
+
+            reset_url = 'http://localhost:5000/password_reset/' + token
+
+            send_mail(email, 'Password Reset Request', 'This is a password reset request. Click the link below \n' + reset_url)
+
+        return jsonify({"recoverySuccessful": "true"})
+
+    return jsonify({"recoverySuccessful": "false"})
+
+
+@app.route('/password_reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    if request.method == 'GET':
+
+
+        return ''
+
+    return ''
+
 
 @app.route('/schedule', methods= ['GET'])
 def get_schedule():
@@ -693,5 +852,5 @@ def get_schedule():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
     #db.create_all()

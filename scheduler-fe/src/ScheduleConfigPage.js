@@ -9,7 +9,7 @@ class LoginPage extends React.Component {
 
     this.state = {
       errors: {},
-      email: '',
+      name: '',
       password: '',
       loggedIn: false,
       role: ''
@@ -23,27 +23,18 @@ class LoginPage extends React.Component {
   validateLoginForm = () => {
 
     let isFormValid = true;
-    let error = {};
 
     this.setState({errors: {}});
 
-    if (this.state.email.trim().length === 0) {
+    if (this.state.name.trim().length === 0) {
       isFormValid = false;
-
-      error.summary = 'Please provide your email address';
-      error.email = true;
-
-      this.setState({ errors: error });
+      this.setState({errors: {name: 'Please provide your username'}});
 
     }
 
     if (this.state.password.trim().length === 0) {
       isFormValid = false;
-
-      error.summary = 'Please provide your password';
-      error.password = true;
-
-      this.setState({ errors: error });
+      this.setState({errors: {password: 'Please provide your password'}});
 
     }
 
@@ -53,14 +44,14 @@ class LoginPage extends React.Component {
   handleSubmit(event) {
 
     event.preventDefault();
-    let email = this.state.email;
-    let password = this.state.password;
+    const name = this.state.name;
+    const password = this.state.password;
     //var self = this;
 
     if (this.validateLoginForm()) {
       axios.post('/login', {
       //axios.post('https://glacial-sierra-90432.herokuapp.com/login', {
-        email: email,
+        name: name,
         password: password
       })
       .then(response => {
@@ -90,7 +81,6 @@ class LoginPage extends React.Component {
         console.log(error);
       });
     }
-
   }
 
   handleInputChange(event) {
@@ -100,10 +90,7 @@ class LoginPage extends React.Component {
     if (this.state.loggedIn){
       return <Redirect to={{
         pathname: '/main',
-        state: {
-          role: this.state.role,
-          loggedIn: true
-        }
+        state: { role: this.state.role }
 
       }}/>;
     }
@@ -112,7 +99,7 @@ class LoginPage extends React.Component {
         onSubmit={this.handleSubmit}
         onChange={this.handleInputChange}
         errors={this.state.errors}
-        email={this.state.email}
+        name={this.state.name}
         password={this.state.password}
 
       />

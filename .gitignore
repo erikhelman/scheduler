@@ -10,3 +10,11 @@ result.json
 client_secrets.json
 testfile.txt
 .Python
+pyvenv.cfg
+npm-debug.log
+student.txt
+lib64
+local/
+share/
+config.py
+

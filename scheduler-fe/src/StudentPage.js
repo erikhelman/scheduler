@@ -2,6 +2,7 @@ import React from 'react';
 import StudentForm from './StudentForm';
 import axios from 'axios';
 import { parse, format } from 'libphonenumber-js';
+import moment from 'moment';
 
 
 class StudentPage extends React.Component {
@@ -12,19 +13,17 @@ class StudentPage extends React.Component {
       headerHeight: '',
       token: sessionStorage.getItem("token"),
       students: [{ student_id: '',
+                  dob: null,
                   fname: '' ,
                   lname: '',
                   emerg_contact: '',
                   emerg_phone: '',
                   errors: {}
-                }],
-      snackbarState: false
+                }]
     };
   }
 
   componentDidMount () {
-
-    this.setState({headerHeight: document.getElementById('header').clientHeight});
 
     var token = this.state.token;
 
@@ -36,14 +35,9 @@ class StudentPage extends React.Component {
 
       response.data.students.forEach(function(student){
 
-          if (student.dob === '') {
-            student.dob = null
-            } else {
-              student.dob += " EDT"
-              student.dob = new Date(student.dob);
+        student.dob = (student.dob !== null ? moment(student.dob) : null);
 
-          }
-          response.data.emerg_phone = (response.data.emerg_phone != null ? format(response.data.emerg_phone, 'CA', 'National') : '')
+        student.emerg_phone = (student.emerg_phone != null ? format(student.emerg_phone, 'CA', 'National') : '')
 
       });
 
@@ -67,47 +61,47 @@ class StudentPage extends React.Component {
     this.setState({ students: newStudents });
   }
 
-  handleStudentGenderChange = (idx) => (event, index, value) => {
+  handleStudentGenderChange = (idx) => (event, data) => {
 
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
-      return { ...student, gender: value };
+      return { ...student, gender: data.value };
     });
 
     this.setState({ students: newStudents });
   }
 
-  handleLevelChange = (idx) => (event, index, value) => {
+  handleLevelChange = (idx) => (event, data) => {
 
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
-      return { ...student, level: value };
+      return { ...student, level: data.value };
+    });
+          console.log(this.state.students)
+    this.setState({ students: newStudents });
+  }
+
+  handleClassLengthChange = (idx) => (event, data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+      return { ...student, class_length: data.value };
     });
 
     this.setState({ students: newStudents });
   }
 
-  handleClassLengthChange = (idx) => (event, index, value) => {
+  handleClassTypeChange = (idx) => (event, data) => {
 
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
-      return { ...student, class_length: value };
+      return { ...student, class_type: data.value };
     });
 
     this.setState({ students: newStudents });
   }
 
-  handleClassTypeChange = (idx) => (event, index, value) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, class_type: value };
-    });
-
-    this.setState({ students: newStudents });
-  }
-
-  handleStudentDateChange = (idx) => (event, date) => {
+  handleDateofBirthChange = (idx) => (date) => {
 
     const newStudents = this.state.students.map((student, sidx) => {
       if (idx !== sidx) return student;
@@ -151,14 +145,31 @@ class StudentPage extends React.Component {
       var students = this.state.students;
       var token = this.state.token;
 
+      students.forEach(function(student){
+
+          var phone = parse(student.emerg_phone, "CA");
+          student.emerg_phone = (phone.phone != null ? phone.phone : '');
+
+      });
+
       axios.post('/update_students', {
     //  axios.post('https://glacial-sierra-90432.herokuapp.com/update_students', {
         token: token,
         students: students
       })
       .then(response => {
-        if (response.data.studentUpdate === "true") {
-          this.setState({snackbarState: true});
+
+        if (response.data.studentUpdate === true) {
+
+          response.data.students.forEach(function(student){
+
+              student.dob = (student.dob !== null ? moment(student.dob) : null);
+
+              student.emerg_phone = (student.emerg_phone !== '' ? format(student.emerg_phone, 'CA', 'National') : '')
+
+          });
+          this.setState({students: response.data.students})
+
         }
 
       })
@@ -171,8 +182,8 @@ class StudentPage extends React.Component {
 
   handleAddStudent = () => {
     this.setState({
-      students: this.state.students.concat([{ student_id: '-1' }])
-    });
+      students: this.state.students.concat([{ student_id: '-1', dob: null }])
+      });
   }
 
   handleRemoveStudent = (idx) => () => {
@@ -181,20 +192,11 @@ class StudentPage extends React.Component {
     });
   }
 
-  handleRequestClose = () => {
-    this.setState({
-        snackbarState: false,
-      });
-  }
-
   render() {
-    var headerStyle = {
-      height: this.state.headerHeight
-    };
 
     return (
       <div>
-        <div style={headerStyle}></div>
+
         <StudentForm
           onSubmit={this.handleSubmit}
           onChange={this.handleStudentChange}
@@ -203,12 +205,10 @@ class StudentPage extends React.Component {
           errors={this.state.errors}
           students={this.state.students}
           onGenderChange={this.handleStudentGenderChange}
-          onDateChange={this.handleStudentDateChange}
+          onDateChange={this.handleDateofBirthChange}
           onClassTypeChange={this.handleClassTypeChange}
           onClassLengthChange={this.handleClassLengthChange}
           onLevelChange={this.handleLevelChange}
-          snackbarState={this.state.snackbarState}
-          onRequestClose={this.handleRequestClose}
         />
       </div>
     );

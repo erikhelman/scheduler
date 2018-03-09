@@ -1,92 +1,78 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Card, CardText } from 'material-ui/Card';
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
-import {blue600} from 'material-ui/styles/colors'
+import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
 
 const LoginForm = ({
   onSubmit,
   onChange,
   errors,
-  name,
+  email,
   password
 }) => (
-  <Card className="container" >
-    <form action="/" onSubmit={onSubmit}>
-      <h2 className="card-heading" style={{textAlign: 'center'}}>Login</h2>
+  <div className='login-form'>
+    {/*
+      Heads up! The styles below are necessary for the correct render of this example.
+      You can do same with CSS, the main idea is that all the elements up to the `Grid`
+      below must have a height of 100%.
+    */}
+    <style>{`
+      body > div,
+      body > div > div,
+      body > div > div > div.login-form {
+        height: 100%;
+      }
+    `}</style>
+    <Grid
+      textAlign='center'
+      style={{ height: '100%' }}
+      verticalAlign='middle'
+    >
+      <Grid.Column style={{ maxWidth: 450 }}>
 
-      {errors.summary && <p style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</p>}
+        <Header as='h1' color='blue' textAlign='center'>
+          {' '}Champion Swimming
+        </Header>
 
-      <div >
-        <TextField
-          floatingLabelText="User Name"
-          name="name"
-          errorText={errors.name}
-          onChange={onChange}
-          value={name}
-          style={customStyle.textfields}
-          underlineFocusStyle={customStyle.underlineStyle}
-          floatingLabelFocusStyle={customStyle.colorStyle}
-        />
-      </div>
+        <Form size='large' action='/' onSubmit={onSubmit}>
+          <Segment stacked>
+            <Form.Input
+              fluid
+              icon='user'
+              iconPosition='left'
+              placeholder='Email Address'
+              value={email}
+              name='email'
+              onChange={onChange}
+              error={errors.email}
+            />
+            <Form.Input
+              fluid
+              icon='lock'
+              iconPosition='left'
+              placeholder='Password'
+              type='password'
+              value={password}
+              name='password'
+              onChange={onChange}
+              error={errors.password}
+            />
 
-      <div >
-        <TextField
-          floatingLabelText="Password"
-          type="password"
-          name="password"
-          onChange={onChange}
-          errorText={errors.password}
-          value={password}
-          style={customStyle.textfields}
-          underlineFocusStyle={customStyle.underlineStyle}
-          floatingLabelFocusStyle={customStyle.colorStyle}
-        />
-      </div>
+            <Button
+              color='blue'
+              fluid size='large'
+              type='submit'
+            >Login
+            </Button>
+            <br />
+            <p style={{textAlign: 'center'}}>Don't have an account? <Link to={'/registration'}>Create one</Link></p>
+            <p style={{textAlign: 'center'}}><Link to={'/recovery'}>Forgot your password?</Link></p>
+          </Segment>
+          {errors.summary && <Message style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</Message>}
+        </Form>
 
-      <div className="button-line" >
-        <RaisedButton
-          type="submit"
-          label="Log In"
-          style={customStyle.general}
-          backgroundColor = '#1E88E5'
-          labelColor = '#FFFFFF'
-        />
-      </div>
+      </Grid.Column>
+    </Grid>
+  </div>
+)
 
-      <CardText style={{textAlign: 'center'}}>Don't have an account? <Link to={'/registration'}>Create one</Link></CardText>
-
-    </form>
-  </Card>
-);
-
-const customStyle = {
-  textfields: {
-    position: 'relative',
-    width: '20rem',
-    marginLeft: '40%'
-  },
-  general: {
-    position: 'relative',
-    width: '20rem',
-    marginLeft: '40%'
-  },
-  colorStyle: {
-    color:blue600
-  },
-  underlineStyle: {
-    borderColor:blue600
-  },
-};
-
-LoginForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  errors: PropTypes.object.isRequired,
-  name: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired
-};
-
-export default LoginForm;
+export default LoginForm

@@ -1,5 +1,6 @@
-import React from 'react';
+  import React from 'react';
 import axios from 'axios';
+import moment from 'moment';
 import { parse, format } from 'libphonenumber-js';
 import AdminStudentForm from './AdminStudentForm';
 
@@ -10,18 +11,16 @@ class AdminStudentPage extends React.Component {
 
     this.state = {
       id: this.props.location.state.id,
-      headerHeight: '',
       token: sessionStorage.getItem("token"),
       fname: '',
       lname: '',
-      dob: {},
+      dob: null,
       gender: '',
       emerg_contact: '',
       emerg_phone: '',
       class_type: '',
       class_length: '',
-      level: '',
-      snackbarState: false
+      level: ''
     };
     this.handleClassTypeChange = this.handleClassTypeChange.bind(this);
     this.handleClassLengthChange = this.handleClassLengthChange.bind(this);
@@ -33,36 +32,29 @@ class AdminStudentPage extends React.Component {
 
   componentDidMount () {
 
-    this.setState({headerHeight: document.getElementById('header').clientHeight});
-
     var token = this.state.token;
     var id = this.state.id;
 
     axios.post('/admin_student', {
-    //axios.post('https://glacial-sierra-90432.herokuapp.com/students', {
+
       token: token,
       id: id
     })
     .then(response => {
 
-      if (response.data.dob === '') {
-        response.data.dob = null
-            } else {
-              response.data.dob += " EDT"
-              response.data.dob = new Date(response.data.dob);
+      response.data.dob = (response.data.dob !== null ? moment(response.data.dob) : null);
 
-          }
-          response.data.emerg_phone = (response.data.emerg_phone != null ? format(response.data.emerg_phone, 'CA', 'National') : '');
+      response.data.emerg_phone = (response.data.emerg_phone != null ? format(response.data.emerg_phone, 'CA', 'National') : '');
 
-          this.setState({ fname: response.data.fname,
-                          lname: response.data.lname,
-                          dob: response.data.dob,
-                          gender: response.data.gender,
-                          emerg_contact: response.data.emerg_contact,
-                          emerg_phone: response.data.emerg_phone,
-                          class_type: response.data.class_type,
-                          class_length: response.data.class_length,
-                          level: response.data.level });
+      this.setState({ fname: response.data.fname,
+                      lname: response.data.lname,
+                      dob: response.data.dob,
+                      gender: response.data.gender,
+                      emerg_contact: response.data.emerg_contact,
+                      emerg_phone: response.data.emerg_phone,
+                      class_type: response.data.class_type,
+                      class_length: response.data.class_length,
+                      level: response.data.level });
       })
 
       //this.setState({students: (response.data.students != null ? response.data.students : '')});
@@ -113,7 +105,7 @@ class AdminStudentPage extends React.Component {
       var id = this.state.id;
 
       axios.post('/update_admin_student', {
-    //  axios.post('https://glacial-sierra-90432.herokuapp.com/update_students', {
+    //  axios.post('https://glacial-sierra-90432.herokuapp.com/update_admin_student', {
         id: id,
         token: token,
         fname: fname,
@@ -129,7 +121,7 @@ class AdminStudentPage extends React.Component {
       })
       .then(response => {
         if (response.data.studentUpdate === "true") {
-          this.setState({snackbarState: true});
+
         }
 
       })
@@ -139,20 +131,20 @@ class AdminStudentPage extends React.Component {
     }
   }
 
-  handleGenderChange(event, index, value) {
-    this.setState({ gender: value });
+  handleGenderChange(event, data) {
+    this.setState({ gender: data.value });
   }
 
-  handleClassTypeChange(event, index, value) {
-    this.setState({ class_type: value });
+  handleClassTypeChange(event, data) {
+    this.setState({ class_type: data.value });
   }
 
-  handleClassLengthChange(event, index, value) {
-    this.setState({ class_length: value });
+  handleClassLengthChange(event, data) {
+    this.setState({ class_length: data.value });
   }
 
-  handleLevelChange(event, index, value) {
-    this.setState({ level: value });
+  handleLevelChange(event, data) {
+    this.setState({ level: data.value });
   }
 
   handleInputChange(event) {
@@ -171,13 +163,9 @@ class AdminStudentPage extends React.Component {
   }
 
   render() {
-    var headerStyle = {
-      height: this.state.headerHeight
-    };
 
     return (
       <div>
-        <div style={headerStyle}></div>
         <AdminStudentForm
           onSubmit={this.handleSubmit}
           onInputChange={this.handleInputChange}
@@ -196,7 +184,6 @@ class AdminStudentPage extends React.Component {
           class_type={this.state.class_type}
           class_length={this.state.class_length}
           level={this.state.level}
-          snackbarState={this.state.snackbarState}
           onRequestClose={this.handleRequestClose}
         />
       </div>

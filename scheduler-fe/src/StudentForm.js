@@ -1,13 +1,41 @@
 import React from 'react';
-import DatePicker from 'material-ui/DatePicker';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
-import { Card } from 'material-ui/Card';
-import {blue600} from 'material-ui/styles/colors';
-import Divider from 'material-ui/Divider';
-import Snackbar from 'material-ui/Snackbar';
+import Datepicker from 'react-datepicker';
+import { Form, Segment, Popup, Header, Icon, Container, Button, Rail, Divider } from 'semantic-ui-react';
+import 'react-datepicker/dist/react-datepicker.css';
+
+const gender = [
+  { key : 'm', text: 'Male', value: 'm' },
+  { key : 'f', text: 'Female', value: 'f' }
+];
+
+const classType = [
+  { key: 'group', text: 'Group', value: 'group'},
+  { key: 'semi', text: 'Semi-Private', value: 'semi' },
+  { key: 'private', text: 'Private', value: 'private' },
+  { key: 'dev', text: 'Development', value: 'dev' },
+]
+
+const classLength = [
+  { key: 30, text: '30 minutes', value: 30 },
+  { key: 45, text: '45 minutes', value: 45 },
+  { key: 60, text: '1 hour', value: 60 }
+]
+
+const levels = [
+  { key: 1, text: '1', value: 1 },
+  { key: 2, text: '2', value: 2 },
+  { key: 3, text: '3', value: 3 },
+  { key: 4, text: '4', value: 4 },
+  { key: 5, text: '5', value: 5 },
+  { key: 6, text: '6', value: 6 },
+  { key: 7, text: '7', value: 7 },
+  { key: 8, text: '8', value: 8 },
+  { key: 9, text: '9', value: 9 },
+  { key: 10, text: '10', value: 10 },
+  { key: 11, text: '11', value: 11 },
+  { key: 12, text: '12', value: 12 }
+]
+
 
 const StudentForm = ({
   onChange,
@@ -20,250 +48,153 @@ const StudentForm = ({
   onDateChange,
   onClassTypeChange,
   onClassLengthChange,
-  onLevelChange,
-  onRequestClose,
-  snackbarState
+  onLevelChange
  }) => (
 
-     <form onSubmit={onSubmit}>
+  <Form>
+    <Container>
+      <Rail internal position='left'>
+        <Segment>
+          <Button fluid
+            content='Add New Student'
+            icon='user plus'
+            labelPosition='left'
+            color='blue'
+            onClick={addStudent}
+          />
+          <Divider>
+          </Divider>
+          <Button fluid
+            icon='checkmark box'
+            labelPosition='left'
+            content = 'Submit All Changes'
+            color='blue'
+            onClick={onSubmit}
+          />
+        </Segment>
+      </Rail>
+      {students.map((student, idx) => (
+        <div key={idx} style={{ paddingBottom: '10px' }} >
+          <Header block as='h3' attached='top' color='blue' >
+            Student Information
+            <Popup
+              trigger={<Icon
+                name='user delete'
+                style={{float:'right'}}
+                color='blue'
+                onClick={removeStudent(idx)}
+                       />}
+              content='Remove Student'
+            />
 
-       {students.map((student, idx) => (
-         <Card key={idx} className="students" style={{margin:'1em', paddingBottom: '1em'}}>
-           <div>
-             <TextField
-               floatingLabelText="First Name"
-               floatingLabelFixed={true}
-               value={student.fname}
-               name="fname"
-               onChange={onChange(idx)}
-               style={customStyle.nameTextFields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             />
-             <TextField
-               floatingLabelText="Last Name"
-               floatingLabelFixed={true}
-               value={student.lname}
-               name="lname"
-               onChange={onChange(idx)}
-               style={customStyle.nameTextFields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             />
-             <RaisedButton
-               type="button"
-               onClick={removeStudent(idx)}
-               label = "Remove"
-               style={customStyle.removeButton}
-               backgroundColor = '#1E88E5'
-               labelColor = '#FFFFFF'
-             />
-           </div>
-           <div style={customStyle.general}>
-             <DatePicker
-               name="dob"
-               floatingLabelText="Date of Birth"
-               floatingLabelFixed={true}
-               container="inline"
-               mode="landscape"
-               value={student.dob}
-               onChange={onDateChange(idx)}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-               maxDate = {new Date()}
-             />
-             <SelectField
-               name="gender"
-               floatingLabelText="Gender"
-               floatingLabelFixed={true}
-               value={student.gender}
-               onChange={onGenderChange(idx)}
-               style={customStyle.SelectField}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             >
+          </Header>
+          <Segment basic attached>
 
-               <MenuItem value={"m"} primaryText="Male" />
-               <MenuItem value={"f"} primaryText="Female" />
+            <Form.Group>
+              <Form.Input
+                fluid
+                label='First Name'
+                placeholder='First Name'
+                name='fname'
+                onChange={onChange(idx)}
+                value={student.fname}
+                width={5}
+              />
+              <Form.Input
+                fluid
+                label='Last Name'
+                placeholder='Last Name'
+                name='lname'
+                onChange={onChange(idx)}
+                value={student.lname}
+                width={5}
+              />
+              <Form.Select
+                fluid
+                label='Gender'
+                name='gender'
+                onChange={onGenderChange(idx)}
+                options={gender}
+                value={student.gender}
+                width={2}
+              />
 
-             </SelectField>
-           </div>
-           <div style={{paddingBottom:'1em'}}>
-             <TextField
-               floatingLabelText="Emergency Contact Name"
-               floatingLabelFixed={true}
-               value={student.emerg_contact}
-               name="emerg_contact"
-               onChange={onChange(idx)}
-               style={customStyle.nameTextFields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             />
+            </Form.Group>
 
-             <TextField
-               name="emerg_phone"
-               floatingLabelText="Emergency Contact Number"
-               floatingLabelFixed={true}
-               style={customStyle.textfields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-               onChange={onChange(idx)}
-               value={student.emerg_phone}
-               errorText={student.errors !== undefined ? student.errors.emerg_phone : ''}
-             />
-           </div>
-           <Divider />
-           <div style={customStyle.general}>
-             <SelectField
-               name="class_type"
-               floatingLabelText="Class Type"
-               floatingLabelFixed={true}
-               value={student.class_type}
-               onChange={onClassTypeChange(idx)}
-               style={customStyle.SelectField}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             >
+            <Form.Field
+              label='Date of Birth'
+              control={Datepicker}
+              placeholderText='Date of Birth'
+              name='dob'
+              onChange={onDateChange(idx)}
+              selected={student.dob}
+            />
 
-               <MenuItem value={"group"} primaryText="Group" />
-               <MenuItem value={"semi"} primaryText="Semi-Private" />
-               <MenuItem value={"private"} primaryText="Private" />
-               <MenuItem value={"dev"} primaryText="Development" />
+            <Form.Group>
+              <Form.Select
+                fluid
+                label='Class Type'
+                placeholder='Class Type'
+                name='class_type'
+                onChange={onClassTypeChange(idx)}
+                options={classType}
+                value={student.class_type}
+                width={5}
+              />
 
-             </SelectField>
+              <Form.Select
+                fluid
+                label='Class Length'
+                placeholder='Class Length'
+                name='class_length'
+                onChange={onClassLengthChange(idx)}
+                options={classLength}
+                value={student.class_length}
+                width={5}
+              />
 
-             <SelectField
-               name="class_length"
-               floatingLabelText="Class Length"
-               floatingLabelFixed={true}
-               value={student.class_length}
-               onChange={onClassLengthChange(idx)}
-               style={customStyle.SelectField}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             >
+              <Form.Select
+                fluid
+                label='Level'
+                placeholder='Level'
+                name='level'
+                onChange={onLevelChange(idx)}
+                options={levels}
+                value={student.level}
+                width={2}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Input
+                fluid
+                label='Emergency Contact'
+                placeholder='Emergency Contact'
+                name='emerg_contact'
+                onChange={onChange(idx)}
+                value={student.emerg_contact}
+                width={5}
+              />
 
-               <MenuItem value={30} primaryText="30 minutes" />
-               <MenuItem value={45} primaryText="45 minutes" />
-               <MenuItem value={60} primaryText="1 hour" />
+              <Form.Input
+                fluid
+                label='Emergency Contact Number'
+                placeholder='Emergency Contact Number'
+                name="emerg_phone"
+                onChange={onChange(idx)}
+                value={student.emerg_phone}
+                width={5}
+              />
+            </Form.Group>
+          </Segment>
+        </div>
 
-             </SelectField>
-
-             <SelectField
-               name="level"
-               floatingLabelText="Level"
-               floatingLabelFixed={true}
-               value={student.level}
-               onChange={onLevelChange(idx)}
-               style={customStyle.SelectField}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             >
-
-               <MenuItem value={"1"} primaryText="1" />
-               <MenuItem value={"2"} primaryText="2" />
-               <MenuItem value={"3"} primaryText="3" />
-               <MenuItem value={"4"} primaryText="4" />
-               <MenuItem value={"5"} primaryText="5" />
-               <MenuItem value={"6"} primaryText="6" />
-               <MenuItem value={"7"} primaryText="7" />
-               <MenuItem value={"8"} primaryText="8" />
-               <MenuItem value={"9"} primaryText="9" />
-               <MenuItem value={"10"} primaryText="10" />
-
-             </SelectField>
-           </div>
-           <div>
-             <TextField
-               floatingLabelText="Lesson Date"
-               floatingLabelFixed={true}
-               value={student.lesson_date}
-               name="lessonDate"
-               onChange={onChange(idx)}
-               style={customStyle.nameTextFields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             />
-             <TextField
-               floatingLabelText="Lesson Time"
-               floatingLabelFixed={true}
-               value={student.lesson_time}
-               name="lessonTime"
-               onChange={onChange(idx)}
-               style={customStyle.nameTextFields}
-               underlineFocusStyle={customStyle.underlineStyle}
-               floatingLabelFocusStyle={customStyle.colorStyle}
-             />
-           </div>
+      ))}
 
 
-         </Card>
-       ))}
-       <div >
-         <RaisedButton
-           type="button"
-           onClick={addStudent}
-           style={customStyle.general}
-           backgroundColor = '#1E88E5'
-           labelColor = '#FFFFFF'
-           label = "Add Student"
-         />
+    </Container>
+    </Form>
 
-         <RaisedButton
-           type="submit"
-           label = "Submit Changes"
-           style={customStyle.general}
-           backgroundColor = '#1E88E5'
-           labelColor = '#FFFFFF'
-         />
-       </div>
-       <Snackbar
-         open={snackbarState}
-         style={{textAlign: 'center'}}
-         message="Student information updated successfully!"
-         autoHideDuration={3000}
-         onRequestClose={onRequestClose}
-       />
-     </form>
 
-     )
+)
 
-     const customStyle = {
-       textfields: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         flex:'1',
-       },
-       selectField: {
-         marginRight:'10em',
-         marginLeft: '10em',
-         width:'20em'
-
-       },
-       nameTextFields: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         width:'25em',
-       },
-       emailTextField: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         width:'34em',
-         verticalAlign:'bottom'
-       },
-       general: {
-         position: 'relative',
-         marginLeft: '1em'
-       },
-       removeButton: {
-         position: 'absolute',
-         right: '1em'
-       },
-       colorStyle: {
-         color:blue600
-       },
-       underlineStyle: {
-         borderColor:blue600
-       },
-     };
 export default StudentForm;

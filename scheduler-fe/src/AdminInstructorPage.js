@@ -1,38 +1,35 @@
 import React from 'react';
 import axios from 'axios';
 import { parse, format } from 'libphonenumber-js';
-import AdminUserForm from './AdminUserForm';
+import AdminInstructorForm from './AdminInstructorForm';
 
 
-class AdminUserPage extends React.Component {
+class AdminInsructorPage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       id: this.props.location.state.id,
+      headerHeight: '',
       token: sessionStorage.getItem("token"),
       username: '',
-      status: '',
-      email: {},
+      active: '',
+      email: '',
       role: '',
       fname: '',
       lname: '',
-      customerID: '',
-      city: '',
-      province: '',
-      street: '',
-      postal: '',
       phone: '',
+      snackbarState: false,
       errors: {}
     };
     this.handleActiveStatusChange = this.handleActiveStatusChange.bind(this);
-    this.handleRoleChange = this.handleRoleChange.bind(this);
-    this.handleProvinceChange = this.handleProvinceChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-
+    console.log(this.state.active)
   }
 
   componentDidMount () {
+
+    this.setState({headerHeight: document.getElementById('header').clientHeight});
 
     var token = this.state.token;
     var id = this.state.id;
@@ -45,18 +42,13 @@ class AdminUserPage extends React.Component {
     .then(response => {
 
       response.data.phone = (response.data.phone != null ? format(response.data.phone, 'CA', 'National') : '');
-
+      console.log(response.data);
       this.setState({ fname: response.data.fname,
                       lname: response.data.lname,
-                      username: response.data.username,
-                      status: response.data.status,
-                      email: response.data.email,
                       role: response.data.role,
-                      customerID: response.data.customer_id,
-                      city: response.data.city,
-                      province: response.data.province,
-                      street: response.data.street,
-                      postal: response.data.postal,
+                      username: response.data.username,
+                      active: response.data.active,
+                      email: response.data.email,
                       phone: response.data.phone
                      });
       })
@@ -95,16 +87,11 @@ class AdminUserPage extends React.Component {
 
       var fname = this.state.fname;
       var lname = this.state.lname;
-      var username = this.state.username;
-      var status = this.state.status;
-      var phone = parse(this.state.phone, "CA");
       var email = this.state.email;
       var role = this.state.role;
-      var customerID = this.state.customerID;
-      var city = this.state.city;
-      var province = this.state.province;
-      var street = this.state.street;
-      var postal = this.state.postal;
+      var username = this.state.username;
+      var active = this.state.active;
+      var phone = parse(this.state.phone, "CA");
       var token = this.state.token;
       var id = this.state.id;
 
@@ -115,20 +102,15 @@ class AdminUserPage extends React.Component {
         fname: fname,
         lname: lname,
         username: username,
-        status: status,
-        phone: (phone.phone != null ? phone.phone : ''),
-        email: email,
+        active: active,
         role: role,
-        customerID: customerID,
-        city: city,
-        province: province,
-        street: street,
-        postal: postal
+        phone: (phone.phone != null ? phone.phone : ''),
+        email: email
 
       })
       .then(response => {
         if (response.data.userUpdate === "true") {
-
+          this.setState({snackbarState: true});
         }
 
       })
@@ -138,16 +120,16 @@ class AdminUserPage extends React.Component {
     }
   }
 
-  handleActiveStatusChange(event, data) {
-    this.setState({ status: data.value });
+  handleActiveStatusChange(event, index, value) {
+    this.setState({ active: value });
   }
 
-  handleRoleChange(event, data) {
-    this.setState({ role: data.value });
+  handleRoleChange(event, index, value) {
+    this.setState({ role: value });
   }
 
-  handleProvinceChange(event, data) {
-    this.setState({ province: data.value });
+  handleProvinceChange(event, index, value) {
+    this.setState({ province: value });
   }
 
   handleInputChange(event) {
@@ -155,11 +137,21 @@ class AdminUserPage extends React.Component {
     this.setState({[event.target.name] : event.target.value});
   }
 
+  handleRequestClose = () => {
+    this.setState({
+        snackbarState: false,
+      });
+  }
+
   render() {
+    var headerStyle = {
+      height: this.state.headerHeight
+    };
 
     return (
       <div>
-        <AdminUserForm
+        <div style={headerStyle}></div>
+        <AdminInstructorForm
           onSubmit={this.handleSubmit}
           onInputChange={this.handleInputChange}
           onActiveStatusChange={this.handleActiveStatusChange}
@@ -169,18 +161,20 @@ class AdminUserPage extends React.Component {
           fname={this.state.fname}
           lname={this.state.lname}
           username={this.state.username}
-          status={this.state.status}
+          active={this.state.active}
           email={this.state.email}
           phone={this.state.phone}
           role={this.state.role}
-          customerID={this.state.customerID}
+          customer_id={this.state.customer_id}
           city={this.state.city}
           province={this.state.province}
           street={this.state.street}
           postal={this.state.postal}
+          snackbarState={this.state.snackbarState}
+          onRequestClose={this.handleRequestClose}
         />
       </div>
     );
   }
 }
-export default AdminUserPage
+export default AdminInsructorPage;

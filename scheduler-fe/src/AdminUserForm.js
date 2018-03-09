@@ -1,12 +1,31 @@
 import React from 'react';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
-import { Card } from 'material-ui/Card';
-import {blue600} from 'material-ui/styles/colors';
-import Divider from 'material-ui/Divider';
-import Snackbar from 'material-ui/Snackbar';
+import { Form, Container, Header, Segment } from 'semantic-ui-react';
+
+const provinces = [
+  { key : 'ON', text: 'Ontario', value: 'ON' },
+  { key : 'QC', text: 'Quebec', value: 'QC' },
+  { key : 'MB', text: 'Manitoba', value: 'MB' },
+  { key : 'AB', text: 'Alberta', value: 'AB' },
+  { key : 'SK', text: 'Saskatchewan', value: 'SK' },
+  { key : 'BC', text: 'British Columbia', value: 'BC' },
+  { key : 'NS', text: 'Nova Scotia', value: 'NS' },
+  { key : 'NL', text: 'Newfoundland', value: 'NL' },
+  { key : 'PE', text: 'Prince Edward Island', value: 'PE' },
+  { key : 'YT', text: 'Yukon', value: 'YT' },
+  { key : 'NT', text: 'Northwest Territories', value: 'NT' },
+  { key : 'NU', text: 'Nunavut', value: 'NU' }
+];
+
+const statuses = [
+  { key : 'active', text: 'Active', value: 'active' },
+  { key : 'inactive', text: 'Disabled', value: 'inactive' }
+];
+
+const roles = [
+  { key : 'user', text: 'User', value: 'user' },
+  { key : 'admin', text: 'Administrator', value: 'admin' },
+  { key : 'inst', text: 'Instructor', value: 'inst' }
+];
 
 const AdminUserForm = ({
   onInputChange,
@@ -19,249 +38,177 @@ const AdminUserForm = ({
   fname,
   lname,
   username,
-  active,
+  status,
   email,
   phone,
   role,
-  customer_id,
+  customerID,
   city,
   province,
   street,
-  postal,
-  onRequestClose,
-  snackbarState
+  postal
  }) => (
 
-     <form onSubmit={onSubmit}>
+     <Form>
+       <Container>
+         <Header
+           block
+           as='h2'
+           attached='top'
+           color='blue'
+           content='User Information'
+         />
+         <Segment basic attached>
+           <Form.Group>
+             <Form.Input
+               fluid
+               label='First Name'
+               placeholder="First Name"
+               name="fname"
+               onChange={onInputChange}
+               error={errors.fname}
+               value={fname}
+               width={5}
+             />
 
-       <Card className="user" style={{margin:'1em', paddingBottom: '1em'}}>
-         <div>
-           <TextField
-             floatingLabelText="First Name"
-             floatingLabelFixed={true}
-             value={fname}
-             name="fname"
-             onChange={onInputChange}
-             style={customStyle.nameTextFields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           />
-           <TextField
-             floatingLabelText="Last Name"
-             floatingLabelFixed={true}
-             value={lname}
-             name="lname"
-             onChange={onInputChange}
-             style={customStyle.nameTextFields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           />
-           <TextField
-             floatingLabelText="Username"
-             floatingLabelFixed={true}
-             value={username}
-             disabled={true}
-             name="username"
-             onChange={onInputChange}
-             style={customStyle.nameTextFields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           />
-         </div>
-         <div style={{ display: 'flex', width:'54em'}}>
-           <TextField
-             floatingLabelText="Customer ID"
-             floatingLabelFixed={true}
-             name="customer_id"
-             value={customer_id}
-             onChange={onInputChange}
-             style={customStyle.nameTextFields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           />
-           <SelectField
-             name="active"
-             floatingLabelText="Status"
-             floatingLabelFixed={true}
-             value={active}
-             onChange={onActiveStatusChange}
-             style={customStyle.SelectField}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           >
+             <Form.Input
+               fluid
+               label="Last Name"
+               placeholder="Last Name"
+               name="lname"
+               onChange={onInputChange}
+               error={errors.lname}
+               value={lname}
+               width={5}
+             />
 
-             <MenuItem value={true} primaryText="Active" />
-             <MenuItem value={false} primaryText="Disabled" />
+             <Form.Input
+               disabled
+               fluid
+               label="User Name"
+               placeholder="User Name"
+               name="username"
+               onChange={onInputChange}
+               error={errors.lname}
+               value={username}
+               width={2}
+             />
+           </Form.Group>
+           <Form.Group>
+             <Form.Input
+               fluid
+               label="Customer ID"
+               placeholder="Customer ID"
+               name="customerID"
+               onChange={onInputChange}
+               error={errors.customerID}
+               value={customerID}
+               width={5}
+             />
 
-           </SelectField>
+             <Form.Select
+               fluid
+               label="Status"
+               placeholder="Status"
+               name="status"
+               onChange={onActiveStatusChange}
+               options={statuses}
+               value={status}
+               width={5}
+             />
 
-           <SelectField
-             name="role"
-             floatingLabelText="Role"
-             floatingLabelFixed={true}
-             value={role}
-             onChange={onRoleChange}
-             style={customStyle.SelectField}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           >
+             <Form.Select
+               fluid
+               label="Role"
+               placeholder="Role"
+               name="role"
+               onChange={onRoleChange}
+               options={roles}
+               value={role}
+               width={2}
+             />
+           </Form.Group>
+           <br />
+           <Form.Group>
+             <Form.Input
+               fluid
+               label="Email"
+               placeholder="Email"
+               name="email"
+               type="email"
+               onChange={onInputChange}
+               error={errors.email}
+               value={email}
+               width={5}
+             />
 
-             <MenuItem value={"user"} primaryText="User" />
-             <MenuItem value={"admin"} primaryText="Administrator" />
-             <MenuItem value={"inst"} primaryText="Instructor" />
+             <Form.Input
+               fluid
+               label="Phone Number"
+               placeholder="Phone Number"
+               name="phone"
+               onChange={onInputChange}
+               error={errors.phone}
+               value={phone}
+               width={5}
+             />
+           </Form.Group>
+           <br />
 
-           </SelectField>
-
-         </div>
-         <Divider />
-         <div style={{ display: 'flex', width:'54em'}}>
-           <TextField
-             floatingLabelText="Email Address"
-             floatingLabelFixed={true}
-             value={email}
-             name="email"
-             onChange={onInputChange}
-             style={customStyle.nameTextFields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-           />
-
-           <TextField
-             name="phone"
-             floatingLabelText="Phone Number"
-             floatingLabelFixed={true}
-             style={customStyle.textfields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-             onChange={onInputChange}
-             value={phone}
-             errorText={errors !== undefined ? errors.phone : ''}
-           />
-
-         </div>
-         <div style={customStyle.general}>
-           <TextField
+           <Form.Input
+             fluid
+             label="Street Address"
+             placeholder="Street Address"
              name="street"
-             floatingLabelText="Street"
-             floatingLabelFixed={true}
-             style={customStyle.streetTextfield}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
              onChange={onInputChange}
-             errorText={errors.street}
+             error={errors.street}
              value={street}
            />
-         </div>
-         <div style={{ display: 'flex', width:'54em'}}>
-           <TextField
-             name="city"
-             floatingLabelText="City"
-             floatingLabelFixed={true}
-             style={customStyle.textfields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-             onChange={onInputChange}
-             errorText={errors.city}
-             value={city}
+           <Form.Group>
+             <Form.Input
+               fluid
+               label="City"
+               placeholder="City"
+               name="city"
+               onChange={onInputChange}
+               error={errors.city}
+               value={city}
+               width={5}
+             />
+
+             <Form.Select
+               fluid
+               label="Province"
+               placeholder="Province"
+               name="province"
+               onChange={onProvinceChange}
+               options={provinces}
+               value={province}
+               width={5}
+             />
+
+             <Form.Input
+               fluid
+               label="Postal Code"
+               placeholder="Postal Code"
+               name="postal"
+               onChange={onInputChange}
+               error={errors.postal}
+               value={postal}
+               width={2}
+             />
+           </Form.Group>
+
+           <Form.Button
+             content="Submit"
+             color="blue"
+             onClick={onSubmit}
            />
+         </Segment>
 
-           <SelectField
-             name="province"
-             floatingLabelText="Province"
-             floatingLabelFixed={true}
-             style={customStyle.SelectField}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-             onChange={onProvinceChange}
-             errorText={errors.province}
-             value={province}
-           >
-             <MenuItem value={"ON"} primaryText="Ontario" />
-             <MenuItem value={"QC"} primaryText="Quebec" />
-             <MenuItem value={"MB"} primaryText="Manitoba" />
-             <MenuItem value={"AB"} primaryText="Alberta" />
-             <MenuItem value={"SK"} primaryText="Saskatchewan" />
-             <MenuItem value={"BC"} primaryText="British Columbia" />
-             <MenuItem value={"NS"} primaryText="Nova Scotia" />
-             <MenuItem value={"NL"} primaryText="Newfoundland" />
-             <MenuItem value={"PE"} primaryText="Prince Edward Island" />
-             <MenuItem value={"YT"} primaryText="Yukon" />
-             <MenuItem value={"NT"} primaryText="Northwest Territories" />
-             <MenuItem value={"NU"} primaryText="Nunavut" />
-           </SelectField>
+       </Container>
+     </Form>
 
+)
 
-           <TextField
-             name="postal"
-             floatingLabelText="Postal Code"
-             floatingLabelFixed={true}
-             style={customStyle.textfields}
-             underlineFocusStyle={customStyle.underlineStyle}
-             floatingLabelFocusStyle={customStyle.colorStyle}
-             onChange={onInputChange}
-             errorText={errors.postal}
-             value={postal}
-           />
-         </div>
-
-       </Card>
-
-       <div >
-         <RaisedButton
-           type="submit"
-           label = "Submit Changes"
-           style={customStyle.general}
-           backgroundColor = '#1E88E5'
-           labelColor = '#FFFFFF'
-         />
-       </div>
-       <Snackbar
-         open={snackbarState}
-         style={{textAlign: 'center'}}
-         message="Student information updated successfully!"
-         autoHideDuration={3000}
-         onRequestClose={onRequestClose}
-       />
-     </form>
-
-     )
-
-     const customStyle = {
-       textfields: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         flex:'1',
-       },
-       selectField: {
-         marginRight:'10em',
-         marginLeft: '10em',
-         width:'20em'
-
-       },
-       nameTextFields: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         width:'25em',
-       },
-       emailTextField: {
-         marginRight:'1em',
-         marginLeft: '1em',
-         width:'34em',
-         verticalAlign:'bottom'
-       },
-       general: {
-         position: 'relative',
-         marginLeft: '1em'
-       },
-       removeButton: {
-         position: 'absolute',
-         right: '1em'
-       },
-       colorStyle: {
-         color:blue600
-       },
-       underlineStyle: {
-         borderColor:blue600
-       },
-     };
 export default AdminUserForm;
