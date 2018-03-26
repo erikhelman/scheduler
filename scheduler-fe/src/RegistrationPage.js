@@ -10,12 +10,19 @@ class RegistrationPage extends React.Component {
 
     this.state = {
       errors: {},
+      timeconfig: {
+        minutes : {
+          step: 15
+        }
+      },
       email: '',
       fname: '',
       lname: '',
       password: '',
       phone: '',
       confirmPassword: '',
+      loading: false,
+      disabled: false,
       success: false,
       students: [{ dob: null,
                   fname: '' ,
@@ -25,6 +32,15 @@ class RegistrationPage extends React.Component {
                   class_type: '',
                   class_length: '',
                   previous_school: '',
+                  day0: '',
+                  day1: '',
+                  day2: '',
+                  startTime0: null,
+                  startTime1: null,
+                  startTime2: null,
+                  endTime0: null,
+                  endTime1: null,
+                  endTime2: null,
                   errors: {}
                 }]
     };
@@ -32,6 +48,7 @@ class RegistrationPage extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleStudentChange = this.handleStudentChange.bind(this);
+
   }
 
   validateRegisterForm = () => {
@@ -101,15 +118,17 @@ class RegistrationPage extends React.Component {
   handleSubmit(event) {
 
     event.preventDefault();
-
     let email = this.state.email;
     let password = this.state.password;
     let fname = this.state.fname;
     let lname = this.state.lname;
     let students = this.state.students;
-    let phone = parse(this.state.phone, "CA")
+    let phone = parse(this.state.phone, "CA");
 
     if (this.validateRegisterForm()) {
+
+      this.setState({ loading: true });
+      this.setState({ disabled: true });
 
       axios.post('/register', {
         //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
@@ -123,10 +142,12 @@ class RegistrationPage extends React.Component {
       .then(response => {
 
         if (response.data.isRegistered === "true") {
-          console.log('should be redirected');
-          console.log(response.data);
+          this.setState({ loading: false });
+          this.setState({ disabled: false});
           this.setState({ success: true });
         } else {
+          this.setState({ loading: false });
+          this.setState({ disabled: false});
           this.setState({errors: {summary: response.data.errors}});
         }
       })
@@ -208,9 +229,85 @@ class RegistrationPage extends React.Component {
     this.setState({ students: newStudents });
   }
 
+  handleDayChange = (idx) => (event, data) => {
+
+      const newStudents = this.state.students.map((student, sidx) => {
+        if (idx !== sidx) return student;
+          return { ...student, [data.name]: data.value };
+        });
+
+        this.setState({ students: newStudents });
+  }
+
+  handleStartTimeChange0 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, startTime0: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
+  handleStartTimeChange1 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, startTime1: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
+  handleStartTimeChange2 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, startTime2: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
+  handleEndTimeChange0 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, endTime0: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
+  handleEndTimeChange1 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, endTime1: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
+  handleEndTimeChange2 = (idx) => (data) => {
+
+    const newStudents = this.state.students.map((student, sidx) => {
+      if (idx !== sidx) return student;
+        return { ...student, endTime2: data };
+      });
+
+      this.setState({ students: newStudents });
+
+  }
+
   handleAddStudent = () => {
     this.setState({
-      students: this.state.students.concat([{ student_id: '-1', dob: null }])
+      students: this.state.students.concat([{ dob: null }])
       });
   }
 
@@ -246,6 +343,17 @@ class RegistrationPage extends React.Component {
         onClassTypeChange={this.handleClassTypeChange}
         onClassLengthChange={this.handleClassLengthChange}
         onLevelChange={this.handleLevelChange}
+        onDayChange={this.handleDayChange}
+        onStartTimeChange0={this.handleStartTimeChange0}
+        onStartTimeChange1={this.handleStartTimeChange1}
+        onStartTimeChange2={this.handleStartTimeChange2}
+        onEndTimeChange0={this.handleEndTimeChange0}
+        onEndTimeChange1={this.handleEndTimeChange1}
+        onEndTimeChange2={this.handleEndTimeChange2}
+        timeconfig={this.state.timeconfig}
+        loading={this.state.loading}
+        disabled={this.state.disabled}
+
       />
     );
   }

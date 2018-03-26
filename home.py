@@ -25,8 +25,6 @@ url = "https://glacial-sierra-90432.herokuapp.com/"
 class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
-    first_name = db.Column(db.String(25))
-    last_name = db.Column(db.String(25))
     password = db.Column(db.String(100))
     status = db.Column(db.String(10)) # active, inactive, pending
     role = db.Column(db.String(5))
@@ -48,7 +46,17 @@ class Students(db.Model):
     emerg_contact = db.Column(db.String(50))
     emerg_phone = db.Column(db.String(10))
     previous_school = db.Column(db.String(100))
+    pref_day0 = db.Column(db.String(9))
+    pref_start_time0 = db.Column(db.DateTime(timezone=True))
+    pref_end_time0 = db.Column(db.DateTime(timezone=True))
+    pref_day1 = db.Column(db.String(9))
+    pref_start_time1 = db.Column(db.DateTime(timezone=True))
+    pref_end_time1 = db.Column(db.DateTime(timezone=True))
+    pref_day2 = db.Column(db.String(9))
+    pref_start_time2 = db.Column(db.DateTime(timezone=True))
+    pref_end_time2 = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    classes = db.relationship('Classes', backref='students', lazy='dynamic')
 
 
 class Profile(db.Model):
@@ -62,6 +70,29 @@ class Profile(db.Model):
     postal = db.Column(db.String(6))
     phone = db.Column(db.String(10))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+
+
+class Config(db.Model):
+    config_id = db.Column(db.Integer, primary_key=True)
+    reschedules_allowed = db.Column(db.Integer)
+    notice_required = db.Column(db.Integer)
+
+
+class Session(db.Model):
+    session_id = db.Column(db.Integer, primary_key=True)
+    start_date = db.Column(db.DateTime(timezone=True))
+    end_date = db.Column(db.DateTime(timezone=True))
+    current_session = db.Column(db.Boolean)
+    next_session = db.Column(db.Boolean)
+    class_id = db.relationship('Classes', backref='session', lazy='dynamic')
+
+
+class Classes(db.Model):
+    class_id = db.Column(db.Integer, primary_key=True)
+    class_start = db.Column(db.DateTime(timezone=True))
+    class_end = db.Column(db.DateTime(timezone=True))
+    student_id = db.Column(db.Integer, db.ForeignKey('students.student_id'))
+    session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
 
 
 @app.route('/login', methods=['POST'])
@@ -142,7 +173,17 @@ def register():
                                        status='Pending',
                                        emerg_contact=None,
                                        emerg_phone=None,
-                                       previous_school=s['previous_school'])
+                                       previous_school=s['previous_school'],
+                                       pref_day0=s['day0'] if 'day0' in s else None,
+                                       pref_start_time0=s['startTime0'] if 'startTime0' in s else None,
+                                       pref_end_time0=s['endTime0'] if 'endTime0' in s else None,
+                                       pref_day1=s['day1'] if 'day1' in s else None,
+                                       pref_start_time1=s['startTime1'] if 'startTime1' in s else None,
+                                       pref_end_time1=s['endTime1'] if 'endTime1' in s else None,
+                                       pref_day2=s['day2'] if 'day2' in s else None,
+                                       pref_start_time2=s['startTime2'] if 'startTime2' in s else None,
+                                       pref_end_time2=s['endTime2'] if 'endTime2' in s else None,
+                                       )
 
                 user.students.append(new_student)
 
@@ -160,7 +201,7 @@ def register():
 
         else:
             return jsonify({"isRegistered": "false",
-                            "errors": "This user name already exists, please select a different one."})
+                            "errors": "This email address is already registered in the system. If you have forgotten your password, please click the password recovery link."})
 
     return ''
 
@@ -535,7 +576,18 @@ def get_all_students():
                                'class_length': s.class_length,
                                'status': s.status,
                                'emerg_contact': s.emerg_contact,
-                               'emerg_phone': s.emerg_phone}
+                               'emerg_phone': s.emerg_phone,
+                               'previous_school': s.previous_school,
+                               'pref_day0': s.pref_day0,
+                               'pref_start_time0': s.pref_start_time0,
+                               'pref_end_time0': s.pref_end_time0,
+                               'pref_day1': s.pref_day1,
+                               'pref_start_time1': s.pref_start_time1,
+                               'pref_end_time1': s.pref_end_time1,
+                               'pref_day2': s.pref_day2,
+                               'pref_start_time2': s.pref_start_time2,
+                               'pref_end_time2': s.pref_end_time2,
+                               }
 
                 userdata['students'].append(new_student)
 
@@ -545,6 +597,8 @@ def get_all_students():
 @app.route('/all_users', methods=['POST'])
 def get_all_users():
     if request.method == 'POST':
+
+
 
         payload = request.data.decode('utf8')
         data = json.loads(payload)
@@ -581,6 +635,7 @@ def get_all_users():
                 userdata['users'].append(new_user)
 
         return jsonify(userdata)
+
     return ''
 
 
@@ -812,8 +867,221 @@ def password_recovery():
 def password_reset(token):
     if request.method == 'GET':
 
-
         return ''
+
+    return ''
+
+
+@app.route('/get_config', methods=['GET'])
+def get_config():
+    if request.method == 'GET':
+
+        userdata={}
+
+        config_data = Config.query.first()
+
+        current_session = Session.query.filter(Session.current_session == True).first()
+        next_session = Session.query.filter(Session.next_session == True).first()
+
+        if config_data is None:
+            userdata['notice'] = ''
+            userdata['numberAllowed'] = ''
+
+        else:
+
+            userdata['notice'] = config_data.notice_required
+            userdata['numberAllowed'] = config_data.reschedules_allowed
+
+        if current_session is None:
+
+            userdata['current_start_date'] = ''
+            userdata['current_end_date'] = ''
+
+        else:
+
+            userdata['current_start_date'] = current_session.start_date.isoformat()
+            userdata['current_end_date'] = current_session.end_date.isoformat()
+
+        if next_session is None:
+
+            userdata['next_start_date'] = ''
+            userdata['next_end_date'] = ''
+
+        else:
+
+            userdata['next_start_date'] = next_session.start_date.isoformat()
+            userdata['next_end_date'] = next_session.end_date.isoformat()
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/config', methods=['POST'])
+def config():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        userdata={}
+        config = Config.query.first()
+
+        if Config.query.first() is None:
+
+            config = Config(reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None,
+                            notice_required=data['notice'] if data['notice'] is not '' else None)
+
+        else:
+            config.reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None
+            config.notice_required=data['notice'] if data['notice'] is not '' else None
+
+        db.session.add(config)
+        db.session.commit()
+
+        Session.query.update({Session.current_session: False})
+        Session.query.update({Session.next_session: False})
+
+        current_session = Session(start_date=data['currentStartDate'],
+                                  end_date=data['currentEndDate'],
+                                  current_session=True,
+                                  next_session=False)
+
+        next_session = Session(start_date=data['nextStartDate'],
+                               end_date=data['nextEndDate'],
+                               current_session=False,
+                               next_session=True)
+
+        db.session.add(current_session)
+        db.session.add(next_session)
+        db.session.commit()
+
+        userdata['configUpdate'] = True
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/all_classes', methods=['POST'])
+def get_all_classes():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+
+            classes = db.session.query(Classes).join(Students).join(Session).all()
+            students = Students.query.all()
+            sessions = Session.query.all()
+
+            userdata = {}
+            userdata['classes'] = []
+            userdata['students'] = []
+            userdata['sessions'] = []
+
+            for st in students:
+                new_student = {'student_id': st.student_id,
+                               'fname': st.fname,
+                               'lname': st.lname}
+
+                userdata['students'].append(new_student)
+
+            for c in classes:
+                new_class = {'student_id': c.students.student_id,
+                             'fname': c.students.fname,
+                             'lname': c.students.lname,
+                             'class_start': c.class_start.isoformat(),
+                             'class_end': c.class_end.isoformat(),
+                             'session_id': c.session.session_id,
+                             's_start_date': c.session.start_date.isoformat(),
+                             's_end_date': c.session.end_date.isoformat(),
+                             'current_session': c.session.current_session,
+                             'next_session': c.session.next_session
+                            }
+
+                userdata['classes'].append(new_class)
+
+            for s in sessions:
+                new_session = {'session_id': s.session_id,
+                               's_start_date': s.start_date.isoformat(),
+                               's_end_date': s.end_date.isoformat(),
+                               'current_session': s.current_session,
+                               'next_session': s.next_session
+                              }
+
+                userdata['sessions'].append(new_session)
+
+            return jsonify(userdata)
+
+
+@app.route('/add_scheduled_classes', methods=['POST'])
+def add_scheduled_classes():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        userdata={}
+        session = None;
+
+        if data['selectedSession'] == 'current':
+            session = Session.query.filter(Session.current_session == True).first()
+
+        elif data['selectedSession'] == 'next':
+            session = Session.query.filter(Session.next_session == True).first()
+        else:
+            data['error'] = 'Selected session not found'
+
+        for c in data['scheduleDates']:
+
+            new_class = Classes(class_start=c[0],
+                                class_end=c[1],
+                                student_id=data['studentId'],
+                                session_id=session.session_id
+                                )
+
+            db.session.add(new_class)
+
+        db.session.commit()
+
+        userdata['scheduleSubmitted'] = True
+
+        return jsonify(userdata)
 
     return ''
 

@@ -18,7 +18,8 @@ const provinces = [
 
 const statuses = [
   { key : 'active', text: 'Active', value: 'active' },
-  { key : 'inactive', text: 'Disabled', value: 'inactive' }
+  { key : 'inactive', text: 'Disabled', value: 'inactive' },
+  { key : 'pending', text: 'Pending', value: 'pending' },
 ];
 
 const roles = [
@@ -82,17 +83,6 @@ const AdminUserForm = ({
                width={5}
              />
 
-             <Form.Input
-               disabled
-               fluid
-               label="User Name"
-               placeholder="User Name"
-               name="username"
-               onChange={onInputChange}
-               error={errors.lname}
-               value={username}
-               width={2}
-             />
            </Form.Group>
            <Form.Group>
              <Form.Input

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Form, Header, Message, Segment, Container, Rail, Popup, Icon } from 'semantic-ui-react';
+import { Dimmer, Loader, Button, Form, Header, Message, Segment, Container, Rail, Popup, Icon } from 'semantic-ui-react';
 import Datepicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Datetime from 'react-datetime';
+import 'react-datetime/css/react-datetime.css';
 
 const gender = [
   { key : 'm', text: 'Male', value: 'm' },
@@ -12,12 +14,10 @@ const gender = [
 const classType = [
   { key: 'group', text: 'Group', value: 'group'},
   { key: 'semi', text: 'Semi-Private', value: 'semi' },
-  { key: 'private', text: 'Private', value: 'private' },
-  { key: 'dev', text: 'Development', value: 'dev' },
+  { key: 'private', text: 'Private', value: 'private' }
 ]
 
 const classLength = [
-  { key: 30, text: '30 minutes', value: 30 },
   { key: 45, text: '45 minutes', value: 45 },
   { key: 60, text: '1 hour', value: 60 }
 ]
@@ -35,6 +35,16 @@ const levels = [
   { key: 10, text: '10', value: 10 },
   { key: 11, text: '11', value: 11 },
   { key: 12, text: '12', value: 12 }
+]
+
+const daysOfTheWeek = [
+  { key: 'monday', text: 'Monday', value: 'monday' },
+  { key: 'tuesday', text: 'Tuesday', value: 'tuesday' },
+  { key: 'wednesday', text: 'Wednesday', value: 'wednesday' },
+  { key: 'thursday', text: 'Thursday', value: 'thursday' },
+  { key: 'friday', text: 'Friday', value: 'friday' },
+  { key: 'saturday', text: 'Saturday', value: 'saturday' },
+  { key: 'sunday', text: 'Sunday', value: 'sunday' }
 ]
 
 const RegistrationForm = ({
@@ -55,10 +65,22 @@ const RegistrationForm = ({
   onDateChange,
   onClassTypeChange,
   onClassLengthChange,
-  onLevelChange
+  onLevelChange,
+  onDayChange,
+  onStartTimeChange0,
+  onStartTimeChange1,
+  onStartTimeChange2,
+  onEndTimeChange0,
+  onEndTimeChange1,
+  onEndTimeChange2,
+  timeconfig,
+  loading,
+  disabled
 }) => (
   <Container>
+
     <Form>
+
       <Rail  position='left'>
         <Segment>
           <Button fluid
@@ -244,18 +266,135 @@ const RegistrationForm = ({
                 value={student.previous_school}
               />
 
+              <p><b>Please enter up to three windows of time where you would like your class to be</b></p>
+
+              <Form.Group>
+
+                <Form.Field
+                  fluid
+                  label='Start Of Window'
+                  control={Datetime}
+                  name='startTime0'
+                  onChange={onStartTimeChange0(idx)}
+                  dateFormat={false}
+
+                  width={5}
+                  value={student.startTime0}
+                />
+
+
+                <Form.Field
+                  fluid
+                  label='End Of Window'
+                  control={Datetime}
+                  name='endTime0'
+                  onChange={onEndTimeChange0(idx)}
+                  dateFormat={false}
+                  timeConstraints={timeconfig}
+                  width={5}
+                  value={student.endTime0}
+
+                />
+
+                <Form.Select
+                  fluid
+                  label='Day of the Week'
+                  name='day0'
+                  onChange={onDayChange(idx)}
+                  options={daysOfTheWeek}
+                  value={student.day0}
+                  width={2}
+                />
+
+              </Form.Group>
+
+              <Form.Group>
+
+                <Form.Field
+                  label='Start Of Window'
+                  control={Datetime}
+                  name='startTime1'
+                  onChange={onStartTimeChange1(idx)}
+                  dateFormat={false}
+                  timeConstraints={timeconfig}
+                  width={5}
+                  value={student.startTime1}
+                />
+
+                <Form.Field
+                  label='End Of Window'
+                  control={Datetime}
+                  name='endTime1'
+                  onChange={onEndTimeChange1(idx)}
+                  dateFormat={false}
+                  timeConstraints={timeconfig}
+                  width={5}
+                  value={student.endTime1}
+                />
+
+                <Form.Select
+                  fluid
+                  label='Day of the Week'
+                  name='day1'
+                  onChange={onDayChange(idx)}
+                  options={daysOfTheWeek}
+                  value={student.day1}
+                  width={2}
+                />
+
+              </Form.Group>
+
+              <Form.Group>
+
+                <Form.Field
+                  label='Start Of Window'
+                  control={Datetime}
+                  name='startTime2'
+                  onChange={onStartTimeChange2(idx)}
+                  dateFormat={false}
+                  timeConstraints={timeconfig}
+                  width={5}
+                  value={student.startTime2}
+                />
+
+                <Form.Field
+                  label='End of Window'
+                  control={Datetime}
+                  name='endTime2'
+                  onChange={onEndTimeChange2(idx)}
+                  dateFormat={false}
+                  timeConstraints={timeconfig}
+                  width={5}
+                  value={student.endTime2}
+                />
+
+                <Form.Select
+                  fluid
+                  label='Day of the Week'
+                  name='day2'
+                  onChange={onDayChange(idx)}
+                  options={daysOfTheWeek}
+                  value={student.day2}
+                  width={2}
+                />
+
+              </Form.Group>
+
             </Segment>
           </div>
 
         ))}
 
         <Button
+          disabled = {disabled}
+          loading={loading}
           color='blue'
           fluid size='large'
           type='submit'
           onClick={onSubmit}
         >Create
         </Button>
+
         <br />
         <p style={{textAlign: 'center'}}>Already have an account? <Link to={'/'}>Log in</Link></p>
       </Segment>

@@ -64,7 +64,7 @@ const LoginForm = ({
             >Login
             </Button>
             <br />
-            <p style={{textAlign: 'center'}}>Don't have an account? <Link to={'/registration'}>Create one</Link></p>
+            <p style={{textAlign: 'center'}}>New to Champion Swimming? <Link to={'/registration'}>Register here</Link></p>
             <p style={{textAlign: 'center'}}><Link to={'/recovery'}>Forgot your password?</Link></p>
           </Segment>
           {errors.summary && <Message style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</Message>}

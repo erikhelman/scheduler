@@ -55,15 +55,15 @@ const StudentForm = ({
     <Container>
       <Rail internal position='left'>
         <Segment>
-          <Button fluid
+          {/*<Button fluid
             content='Add New Student'
             icon='user plus'
             labelPosition='left'
             color='blue'
             onClick={addStudent}
-          />
-          <Divider>
-          </Divider>
+            />
+            <Divider>
+          </Divider>*/}
           <Button fluid
             icon='checkmark box'
             labelPosition='left'
@@ -73,19 +73,22 @@ const StudentForm = ({
           />
         </Segment>
       </Rail>
+
       {students.map((student, idx) => (
         <div key={idx} style={{ paddingBottom: '10px' }} >
           <Header block as='h3' attached='top' color='blue' >
             Student Information
-            <Popup
+            {/*
+              <Popup
               trigger={<Icon
                 name='user delete'
                 style={{float:'right'}}
                 color='blue'
                 onClick={removeStudent(idx)}
-                       />}
+              />}
               content='Remove Student'
-            />
+              />
+            */}
 
           </Header>
           <Segment basic attached>
@@ -93,6 +96,7 @@ const StudentForm = ({
             <Form.Group>
               <Form.Input
                 fluid
+                disabled
                 label='First Name'
                 placeholder='First Name'
                 name='fname'
@@ -102,6 +106,7 @@ const StudentForm = ({
               />
               <Form.Input
                 fluid
+                disabled
                 label='Last Name'
                 placeholder='Last Name'
                 name='lname'
@@ -111,6 +116,7 @@ const StudentForm = ({
               />
               <Form.Select
                 fluid
+                disabled
                 label='Gender'
                 name='gender'
                 onChange={onGenderChange(idx)}
@@ -123,6 +129,7 @@ const StudentForm = ({
 
             <Form.Field
               label='Date of Birth'
+              disabled
               control={Datepicker}
               placeholderText='Date of Birth'
               name='dob'
@@ -133,6 +140,7 @@ const StudentForm = ({
             <Form.Group>
               <Form.Select
                 fluid
+                disabled
                 label='Class Type'
                 placeholder='Class Type'
                 name='class_type'
@@ -144,6 +152,7 @@ const StudentForm = ({
 
               <Form.Select
                 fluid
+                disabled
                 label='Class Length'
                 placeholder='Class Length'
                 name='class_length'
@@ -155,6 +164,7 @@ const StudentForm = ({
 
               <Form.Select
                 fluid
+                disabled
                 label='Level'
                 placeholder='Level'
                 name='level'

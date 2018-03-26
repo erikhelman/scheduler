@@ -11,40 +11,37 @@ class SettingsPage extends React.Component {
     this.state = {
       message: {},
       token: sessionStorage.getItem("token"),
-      requests: [],
       loggedIn: '',
-      selected: '',
-      checkValue: 'none',
-      doRedirect: false,
-      sessionStartDate: null,
-      sessionEndDate: null,
-      numberAllowed: 0,
-      notice: 0
+      currentStartDate: null,
+      currentEndDate: null,
+      nextStartDate: null,
+      nextEndDate: null,
+      notice: '',
+      numberAllowed: ''
     };
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleStartDateChange = this.handleStartDateChange.bind(this);
-    this.handleEndDateChange = this.handleEndDateChange.bind(this);
-    this.handleEditClick = this.handleEditClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCurrentStartDateChange = this.handleCurrentStartDateChange.bind(this);
+    this.handleCurrentEndDateChange = this.handleCurrentEndDateChange.bind(this);
+    this.handleNextStartDateChange = this.handleNextStartDateChange.bind(this);
+    this.handleNextEndDateChange = this.handleNextEndDateChange.bind(this);
   };
-
-  handleCheckChange = (e, { value }) => {
-    this.setState({ checkValue: value });
-  }
 
   componentDidMount () {
 
     var token = this.state.token;
     var self = this;
-    axios.post('/all_requests', {
+    axios.get('/get_config', {
           token: token
     })
     .then(response => {
-      self.setState({ requests: response.data.requests });
-      self.setState({ sessionStartDate: response.data.start_date !== '' ? moment(response.data.start_date) : null });
-      self.setState({ sessionEndDate: response.data.end_date !== '' ? moment(response.data.end_date) : null });
-      self.setState({ numberAllowed: response.data.number_allowed });
-      self.setState({ notice: response.data.notice });
+
+      self.setState({ currentStartDate: response.data.current_start_date !== '' ? moment(response.data.current_start_date) : null });
+      self.setState({ currentEndDate: response.data.current_end_date !== '' ? moment(response.data.current_end_date) : null });
+      self.setState({ nextStartDate: response.data.next_start_date !== '' ? moment(response.data.next_start_date) : null });
+      self.setState({ nextEndDate: response.data.next_end_date !== '' ? moment(response.data.next_end_date) : null });
+      self.setState({ numberAllowed: response.data.numberAllowed !== null ? response.data.numberAllowed : ''});
+      self.setState({ notice: response.data.notice !== null ? response.data.notice : ''});
 
     })
     .catch(function (error) {
@@ -53,22 +50,24 @@ class SettingsPage extends React.Component {
 
   }
 
-  handleEditClick(event) {
-
-    if (this.state.checkValue !== 'none') {
-      this.setState({ doRedirect: true });
-    }
+  handleCurrentStartDateChange(date) {
+      this.setState({ currentStartDate: date });
   }
 
-  handleStartDateChange(date) {
-      this.setState({ sessionStartDate: date });
+  handleCurrentEndDateChange(date) {
+    this.setState({ currentEndDate: date });
   }
 
-  handleEndDateChange(date) {
-    this.setState({ sessionEndDate: date });
+  handleNextStartDateChange(date) {
+      this.setState({ nextStartDate: date });
+  }
+
+  handleNextEndDateChange(date) {
+    this.setState({ nextEndDate: date });
   }
 
   handleInputChange(event) {
+
     this.setState({ [event.target.name] : event.target.value});
   }
 
@@ -78,14 +77,26 @@ class SettingsPage extends React.Component {
 
     this.setState({message: {}});
 
-    if (this.state.sessionStartDate == null) {
-      this.setState({message: {summary: "Invalid session start date or date format. Please use MM/DD/YYYY or pick a date from the calendar."}});
+    if (this.state.currentStartDate == null) {
+      this.setState({message: {summary: "Invalid start date or date format for current session. Please use MM/DD/YYYY or pick a date from the calendar."}});
       isFormValid = false;
       return isFormValid;
     }
 
-    if (this.state.sessionEndDate == null) {
-      this.setState({message: {summary: "Invalid session end date or date format. Please use MM/DD/YYYY or pick a date from the calendar."}});
+    if (this.state.currentEndDate == null) {
+      this.setState({message: {summary: "Invalid end date or date format for current session. Please use MM/DD/YYYY or pick a date from the calendar."}});
+      isFormValid = false;
+      return isFormValid;
+    }
+
+    if (this.state.nextStartDate == null) {
+      this.setState({message: {summary: "Invalid start date or date format for next session. Please use MM/DD/YYYY or pick a date from the calendar."}});
+      isFormValid = false;
+      return isFormValid;
+    }
+
+    if (this.state.nextEndDate == null) {
+      this.setState({message: {summary: "Invalid end date or date format for current session. Please use MM/DD/YYYY or pick a date from the calendar."}});
       isFormValid = false;
       return isFormValid;
     }
@@ -99,17 +110,19 @@ class SettingsPage extends React.Component {
 
     if (this.validateForm()) {
       var token = this.state.token;
-      var startDate = this.state.sessionStartDate != null ? this.state.sessionStartDate : null;
-      var endDate = this.state.sessionEndDate != null ? this.state.sessionEndDate : null;
+      var currentStartDate = this.state.currentStartDate != null ? this.state.currentStartDate : null;
+      var currentEndDate = this.state.currentEndDate != null ? this.state.currentEndDate : null;
+      var nextStartDate = this.state.nextStartDate != null ? this.state.nextStartDate : null;
+      var nextEndDate = this.state.nextEndDate != null ? this.state.nextEndDate : null;
       var numberAllowed = this.state.numberAllowed;
       var notice = this.state.notice;
 
-
-      //axios.post('/config', {
-      axios.post('https://mrrescheduler-be.herokuapp.com/config', {
+      axios.post('/config', {
         token: token,
-        startDate: startDate,
-        endDate: endDate,
+        currentStartDate: currentStartDate,
+        currentEndDate: currentEndDate,
+        nextStartDate: nextStartDate,
+        nextEndDate: nextEndDate,
         numberAllowed: numberAllowed,
         notice: notice
 
@@ -136,14 +149,17 @@ class SettingsPage extends React.Component {
             handleRowClick={this.handleRowClick}
             message={this.state.message}
             requests={this.state.requests}
-            handleCheckChange={this.handleCheckChange}
             checkValue={this.state.checkValue}
-            handleStartDateChange={this.handleStartDateChange}
-            handleEndDateChange={this.handleEndDateChange}
+            handleCurrentStartDateChange={this.handleCurrentStartDateChange}
+            handleCurrentEndDateChange={this.handleCurrentEndDateChange}
+            handleNextStartDateChange={this.handleNextStartDateChange}
+            handleNextEndDateChange={this.handleNextEndDateChange}
             handleInputChange={this.handleInputChange}
             handleEditClick={this.handleEditClick}
-            sessionStartDate={this.state.sessionStartDate}
-            sessionEndDate={this.state.sessionEndDate}
+            currentStartDate={this.state.currentStartDate}
+            currentEndDate={this.state.currentEndDate}
+            nextStartDate={this.state.nextStartDate}
+            nextEndDate={this.state.nextEndDate}
             numberAllowed={this.state.numberAllowed}
             onSubmit={this.handleSubmit}
             notice={this.state.notice}

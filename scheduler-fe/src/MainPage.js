@@ -7,16 +7,17 @@ class MainPage extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      loggedIn: false,
+      loggedIn: true,
       visible: true,
       menubarHeight: {},
+      role: 'admin', //this.props.location.state.role,
       menuItems: [
         [
           'Profile',
           'profile',
           '/main/profile',
           'id card',
-          '{ProfilePage}'
+          'ProfilePage'
         ],
         [
           'Student Information',
@@ -48,41 +49,64 @@ class MainPage extends React.Component {
       this.setState({ loggedIn: this.props.location.state.loggedIn});
     }
 
+    if (this.state.role === 'admin') {
+      let menu = this.state.menuItems;
+      let items = [
+        [
+          'Schedule a Student',
+          'schedule',
+          '/main/scheduleStudent',
+          'add to calendar',
+          'ScheduleStudentPage'
+        ],
+        [
+          'Calendar',
+          'calendar',
+          '/main/calendar',
+          'calendar',
+          'CalendarPage'
+        ],
+        [
+          'Instructors',
+          'instructors',
+          '/main/instructors',
+          'id badge',
+          'InstructorPage'
+        ],
+        [
+          'All Students',
+          'allStudents',
+          '/main/all_students',
+          'table',
+          'AllStudentsPage'
+        ],
+        [
+          'All Users',
+          'allUsers',
+          '/main/all_users',
+          'columns',
+          'AllUsersPage'
+        ],
+        [
+          'Settings',
+          'settings',
+          '/main/settings',
+          'setting',
+          'SettingsPage'
+        ],
+        [
+          'Classes',
+          'classes',
+          '/main/all_classes',
+          'calendar',
+          'AllClassesPage'
+        ],
+      ]
+      menu = [...menu, ...items];
+      this.setState({menuItems: menu})
 
-    {/*
-      <Menu.Item as={ Link } to='/main/profile' name='profileLink'>
-         <Icon name='id card' />
-         Profile
-       </Menu.Item>
-       <Menu.Item as={ Link } to='/main/student' name='studentInfoLink'>
-         <Icon name='user circle' />
-         Student Information
-       </Menu.Item>
-       <Menu.Item as={ Link } to='/main/calendar' name='calendar'>
-         <Icon name='calendar' />
-         Calendar
-       </Menu.Item>
-       <Menu.Item as={ Link } to='/main/reschedule' name='reschedule'>
-         <Icon name='calendar times' />
-         Reschedule a Class
-       </Menu.Item>
-       <Menu.Item name='instructors'>
-         <Icon name='id badge' />
-         Instructors
-       </Menu.Item>
-       <Menu.Item as={ Link } to='/main/all_students' name='allStudents'>
-         <Icon name='table' />
-         Students
-       </Menu.Item>
-       <Menu.Item as={ Link } to='/main/all_users' name='allUsers'>
-         <Icon name='columns' />
-         Users
-       </Menu.Item>
-       <Menu.Item as= { Link } to='/main/settings' name='Settings'>
-         <Icon name='setting' />
-         Settings
-       </Menu.Item>
-       */}
+    }
+
   }
 
   componentDidMount () {
@@ -106,13 +130,14 @@ class MainPage extends React.Component {
 
 
   render() {
-    if (this.state.loggedIn == false){
+    {/* if (this.state.loggedIn == false){
       console.log('why');
       return <Redirect to={{
         pathname: '/'
 
       }}/>;
     }
+    */}
     return (
         <div>
           <MainForm

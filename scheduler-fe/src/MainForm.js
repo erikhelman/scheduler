@@ -11,6 +11,8 @@ import AdminStudentPage from './AdminStudentPage';
 import AdminUserPage from './AdminUserPage';
 import ReschedulePage from './ReschedulePage';
 import SettingsPage from './SettingsPage';
+import ScheduleStudentPage from './ScheduleStudentPage';
+import AllClassesPage from './AllClassesPage';
 
 const MainForm = ({
   visible,
@@ -60,6 +62,8 @@ const MainForm = ({
              <Route path='/main/admin_instructor_page' component={AdminInstructorPage} />
              <Route path='/main/reschedule' component={ReschedulePage} />
              <Route path='/main/settings' component={SettingsPage} />
+             <Route path='/main/scheduleStudent' component={ScheduleStudentPage} />
+             <Route path='/main/all_classes' component={AllClassesPage} />
 
            </Segment>
 
