@@ -9,30 +9,52 @@ class ReschedulePage extends React.Component {
     super(props);
 
     this.state = {
+      token: sessionStorage.getItem("token"),
       message: {},
-      rescheduleDate: null,
-      fname: '',
-      lname: '',
-      startDate: null,
-      endDate: null,
-      email: '',
-      notice: 0
+      classes: [],
+      names: '',
+      sessionStartDate: null,
+      sessionEndDate: null,
+      notice: 0,
+      studentId: '',
+      classes: [],
+      selectedClass: '',
+      students: []
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleRescheduleDateChange = this.handleRescheduleDateChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
     this.validateForm = this.validateForm.bind(this);
     this.reset_fields = this.reset_fields.bind(this);
   };
 
   componentDidMount () {
-    axios.get('/get_config')
+
+    var token = this.state.token;
+
+    axios.post('/get_reschedule', {
+
+      token: token
+
+    })
 
     .then(response => {
+        console.log(response.data.students)
+        console.log(response.data.session_start_date)
+        console.log(response.data.session_end_date)
+        console.log(response.data.session_id)
+        let names = [];
+        response.data.students.forEach(function(s) {
+          names.push(
+            {key: s.student_id,
+            text: s.student_name,
+            value: s.student_id
+          })
+        })
 
-        this.setState({startDate: response.data.start_date});
-        this.setState({endDate: response.data.end_date});
-        this.setState({notice: response.data.notice});
+        this.setState({ names: names});
+        this.setState({ students: response.data.students});
 
     })
     .catch(function (error) {
@@ -42,7 +64,27 @@ class ReschedulePage extends React.Component {
 
   handleRescheduleDateChange(date) {
       this.setState({ rescheduleDate: date });
+  }
 
+  handleSelectChange = (event, data) => {
+    this.setState( {[data.name]: data.value });
+
+    if (data.name === 'studentId') {
+
+      let student = this.state.students.filter((s) => s.student_id === data.value);
+      console.log(student)
+      let classes = student[0].classes.map(function (c, idx) {
+
+        return {
+          key: idx,
+          text: moment(c).format('dddd, MMM Do YYYY'),
+          value: idx
+        }
+
+      })
+
+      this.setState({ classes: classes })
+    }
   }
 
   handleInputChange(event) {
@@ -55,26 +97,14 @@ class ReschedulePage extends React.Component {
 
     this.setState({message: {}});
 
-    if (this.state.fname.trim().length === 0) {
+    if (this.state.name === '') {
       isFormValid = false;
-      this.setState({message: {summary: "Please enter the student's first name."}});
-
-    }
-
-    if (this.state.lname.trim().length === 0) {
-      isFormValid = false;
-      this.setState({message: {summary: "Please enter the student's last name."}});
-
-    }
-
-    if (this.state.email.trim().length === 0) {
-      isFormValid = false;
-      this.setState({message: {summary: "Please enter the contact information."}});
+      this.setState({message: {summary: "Please enter the student's name."}});
 
     }
 
     if (this.state.rescheduleDate == null) {
-      this.setState({message: {summary: "Invalid date or date format. Please use MM/DD/YYYY and pick a valid date witin the current session."}});
+      this.setState({message: {summary: "Please select a class to reschedule."}});
       isFormValid = false
     }
 
@@ -84,17 +114,15 @@ class ReschedulePage extends React.Component {
   reset_fields() {
 
         this.setState({rescheduleDate: null});
-        this.setState({fname: ''});
-        this.setState({lname: ''});
-        this.setState({email: ''})
+        this.setState({name: ''});
+
   }
   handleSubmit(event) {
 
     event.preventDefault();
 
     if (this.validateForm()) {
-      var fname = this.state.fname.trim();
-      var lname = this.state.lname.trim();
+
       var rescheduleDate = this.state.rescheduleDate != null ? this.state.rescheduleDate : null;
       var email = this.state.email.trim();
       var time = moment()
@@ -102,8 +130,6 @@ class ReschedulePage extends React.Component {
       axios.post('/reschedule', {
 
         rescheduleDate: rescheduleDate,
-        fname: fname,
-        lname: lname,
         email: email,
         time: time
 
@@ -137,10 +163,13 @@ class ReschedulePage extends React.Component {
             rescheduleDate={this.state.rescheduleDate}
             startDate={this.state.startDate}
             endDate={this.state.endDate}
-            fname={this.state.fname}
-            lname={this.state.lname}
+            names={this.state.names}
             email={this.state.email}
             notice={this.state.notice}
+            studentId={this.state.studentId}
+            classes={this.state.classes}
+            selectedClass={this.state.selectedClass}
+            onSelectChange={this.handleSelectChange}
           />
         </div>
     );

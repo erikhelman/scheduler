@@ -10,13 +10,16 @@ const RescheduleForm = ({
   handleInputChange,
   message,
   rescheduleDate,
-  fname,
-  lname,
   onSubmit,
   startDate,
   endDate,
   email,
-  notice
+  onSelectChange,
+  names,
+  studentId,
+  notice,
+  selectedClass,
+  classes
  }) => (
    <Container>
      <Form>
@@ -26,31 +29,23 @@ const RescheduleForm = ({
        <Segment attached raised>
          <h4 className="ui top black header">Please enter the information below to submit a request to reschedule a lesson.</h4>
 
-         <Form.Group>
-           <Form.Input
-             label="Student's First Name"
-             name='fname'
-             onChange={handleInputChange}
-             value={fname}
+         <Form.Group widths='equal'>
+           <Form.Select
+             label='Student'
+             name='studentId'
+             onChange={onSelectChange}
+             options={names}
+             value={studentId}
            />
 
-           <Form.Input
-             label="Student's Last Name"
-             name='lname'
-             value={lname}
-             onChange={handleInputChange}
+           <Form.Select
+             label='Classes'
+             name='selectedClass'
+             onChange={onSelectChange}
+             options={classes}
+             value={selectedClass}
            />
          </Form.Group>
-         <Form.Field
-             label='Date of Class to be Rescheduled'
-             control={Datepicker}
-           placeholderText='MM/DD/YYYY'
-           name='dob'
-           onChange={handleRescheduleDateChange}
-           selected={rescheduleDate}
-           minDate={moment().add(notice, "days")}
-           maxDate={moment(endDate)}
-         />
 
          <Button
            primary

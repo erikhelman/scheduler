@@ -47,7 +47,7 @@ const daysOfTheWeek = [
   { key: 'sunday', text: 'Sunday', value: 'sunday' }
 ]
 
-const RegistrationForm = ({
+const CreateScheduleForm = ({
   onSubmit,
   onInputChange,
   onStudentChange,
@@ -404,4 +404,4 @@ const RegistrationForm = ({
 
 )
 
-export default RegistrationForm
+export default CreateScheduleForm;

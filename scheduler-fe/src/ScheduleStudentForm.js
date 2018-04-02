@@ -147,12 +147,13 @@ const ScheduleStudentForm = ({
 
              <Form.Input
                fluid
-               label='Price per class'
+               label='Price per class:'
                placeholder='Price'
                value={price}
                name='price'
                onChange={handleInputChange}
              />
+             
            </Modal.Content>
            <Modal.Actions>
              <Button size='small' onClick={handleCancel}>

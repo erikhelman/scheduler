@@ -2,9 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import { parse, format } from 'libphonenumber-js';
 import { Redirect } from 'react-router-dom';
-import CreateScheduleForm from './CreateScheduleForm';
+import RegistrationForm from './RegistrationForm';
 
-class CreateSchedulePage extends React.Component {
+class RegistrationPage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -324,7 +324,7 @@ class CreateSchedulePage extends React.Component {
       }}/>;
     }
     return (
-      <CreateScheduleForm
+      <RegistrationForm
         onSubmit={this.handleSubmit}
         onInputChange={this.handleInputChange}
         onStudentChange={this.handleStudentChange}
@@ -359,4 +359,4 @@ class CreateSchedulePage extends React.Component {
   }
 }
 
-export default CreateSchedulePage;
+export default RegistrationPage;

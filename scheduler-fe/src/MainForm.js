@@ -13,6 +13,7 @@ import ReschedulePage from './ReschedulePage';
 import SettingsPage from './SettingsPage';
 import ScheduleStudentPage from './ScheduleStudentPage';
 import AllClassesPage from './AllClassesPage';
+import PaymentPage from './PaymentPage';
 
 const MainForm = ({
   visible,
@@ -64,6 +65,8 @@ const MainForm = ({
              <Route path='/main/settings' component={SettingsPage} />
              <Route path='/main/scheduleStudent' component={ScheduleStudentPage} />
              <Route path='/main/all_classes' component={AllClassesPage} />
+             <Route path='/main/student_payment_page' component={PaymentPage} />
+
 
            </Segment>
 

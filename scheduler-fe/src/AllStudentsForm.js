@@ -8,7 +8,8 @@ const AllStudentsForm = ({
   errors,
   students,
   checkValue,
-  handleEditClick
+  handleEditClick,
+  handleProcessClick
  }) => (
    <Form>
      <Container>
@@ -22,8 +23,17 @@ const AllStudentsForm = ({
              color='blue'
              onClick = {handleEditClick}
            />
-           <Divider>Filters
+           <Divider>
            </Divider>
+
+           <Button
+             fluid
+             content='Process Payment'
+             icon='payment'
+             labelPosition='left'
+             color='blue'
+             onClick = {handleProcessClick}
+           />
          </Segment>
        </Rail>
 
@@ -42,6 +52,8 @@ const AllStudentsForm = ({
                <Table.HeaderCell>Last Name</Table.HeaderCell>
                <Table.HeaderCell>Email Address</Table.HeaderCell>
                <Table.HeaderCell>Phone Number</Table.HeaderCell>
+               <Table.HeaderCell>Current Session Paid</Table.HeaderCell>
+               <Table.HeaderCell>Next Session Paid</Table.HeaderCell>
 
              </Table.Row>
            </Table.Header>
@@ -68,6 +80,12 @@ const AllStudentsForm = ({
                <Table.Cell
                  children = {student.phone}>
                </Table.Cell>
+               <Table.Cell
+                 children = {student.current_session_paid}>
+               </Table.Cell>
+               <Table.Cell
+                 children = {student.next_session_paid}>
+               </Table.Cell>
 
              </Table.Row>)}
            </Table.Body>
@@ -76,6 +94,6 @@ const AllStudentsForm = ({
        </Segment>
      </Container>
    </Form>
-     )
+  )
 
-     export default AllStudentsForm;
+export default AllStudentsForm;

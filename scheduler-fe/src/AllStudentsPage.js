@@ -14,10 +14,12 @@ class AllStudentsPage extends React.Component {
       loggedIn: '',
       selected: '',
       checkValue: 'none',
-      doRedirect: false
+      doEditRedirect: false,
+      doProcessRedirect: false
     };
 
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleProcessClick = this.handleProcessClick.bind(this);
   };
 
   handleCheckChange = (e, { value }) => {
@@ -34,18 +36,26 @@ class AllStudentsPage extends React.Component {
       token: token
     })
     .then(response => {
+
       self.setState({students: response.data.students});
+
     })
     .catch(function (error) {
       console.log(error);
     });
-
   }
 
   handleEditClick(event) {
 
     if (this.state.checkValue !== 'none') {
-      this.setState({ doRedirect: true });
+      this.setState({ doEditRedirect: true });
+    }
+  }
+
+  handleProcessClick(event) {
+
+    if (this.state.checkValue !== 'none') {
+      this.setState({ doProcessRedirect: true });
     }
   }
 
@@ -59,7 +69,7 @@ class AllStudentsPage extends React.Component {
 
   render() {
 
-      if (this.state.doRedirect) {
+      if (this.state.doEditRedirect) {
         return <Redirect to={{
           pathname: '/main/admin_student_page',
           state: { id: this.state.checkValue }
@@ -67,9 +77,17 @@ class AllStudentsPage extends React.Component {
         }}/>;
       }
 
+      if (this.state.doProcessRedirect) {
+        return <Redirect to={{
+          pathname: '/main/student_payment_page',
+          state: { id: this.state.checkValue }
+
+        }}/>;
+      }
+
       return (
 
-        
+
           <AllStudentsForm
             handleRowClick={this.handleRowClick}
             onChange={this.handleInputChange}
@@ -78,6 +96,7 @@ class AllStudentsPage extends React.Component {
             handleCheckChange={this.handleCheckChange}
             checkValue={this.state.checkValue}
             handleEditClick={this.handleEditClick}
+            handleProcessClick={this.handleProcessClick}
           />
 
     );

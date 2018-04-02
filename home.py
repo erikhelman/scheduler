@@ -9,7 +9,7 @@ from flask_cors import CORS
 import string
 import random
 from time import time
-
+import arrow
 
 app = Flask(__name__)
 
@@ -57,6 +57,7 @@ class Students(db.Model):
     pref_end_time2 = db.Column(db.DateTime(timezone=True))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     classes = db.relationship('Classes', backref='students', lazy='dynamic')
+    payments = db.relationship('Payments', backref='students', lazy='dynamic')
 
 
 class Profile(db.Model):
@@ -85,7 +86,7 @@ class Session(db.Model):
     current_session = db.Column(db.Boolean)
     next_session = db.Column(db.Boolean)
     class_id = db.relationship('Classes', backref='session', lazy='dynamic')
-
+    payment_id = db.relationship('Payments', backref='payments', lazy='dynamic')
 
 class Classes(db.Model):
     class_id = db.Column(db.Integer, primary_key=True)
@@ -93,6 +94,40 @@ class Classes(db.Model):
     class_end = db.Column(db.DateTime(timezone=True))
     student_id = db.Column(db.Integer, db.ForeignKey('students.student_id'))
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
+
+
+class Payments(db.Model):
+    payment_id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.student_id'))
+    session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
+    price = db.Column(db.Integer)
+    paid = db.Column(db.Boolean)
+
+
+class Schedules(db.Model):
+    schedule_id = db.Column(db.Integer, primary_key=True)
+    location = db.Column(db.String(25))
+    lane = db.Column(db.String(10))
+    max_students = db.Column(db.Integer)
+    min_level = db.Column(db.Integer)
+    max_level = db.Column(db.Integer)
+    class_type = db.Column(db.String(30))
+    class_length = db.Column(db.Integer)
+    class_start = db.Column(db.DateTime(timezone=True))
+    class_end = db.Column(db.DateTime(timezone=True))
+
+
+class Locations(db.Model):
+    location_id = db.Column(db.Integer, primary_key=True)
+    location_name = db.Column(db.String(50))
+
+
+class Instructors(db.Model):
+    instructor_id = db.Column(db.Integer, primary_key=True)
+    fname = db.Column(db.String(50))
+    lname = db.Column(db.String(50))
+    phone = db.Column(db.String(10))
+    email = db.Column(db.String(50))
 
 
 @app.route('/login', methods=['POST'])
@@ -561,10 +596,31 @@ def get_all_students():
         else:
 
             all_students = Students.query.order_by(Students.student_id).all()
+            current_session_id = Session.query.filter(Session.current_session == True).first()
+            next_session_id = Session.query.filter(Session.next_session == True).first()
+            current_session_paid = None
+            next_session_paid = None
+
             userdata = {}
             userdata['students'] = []
 
             for s in all_students:
+
+                for p in s.payments:
+
+                    if p.session_id == current_session_id.session_id:
+
+                        if p.paid:
+                            current_session_paid = 'Yes'
+                        else:
+                            current_session_paid = 'No'
+
+                    elif p.session_id == next_session_id.session_id:
+
+                        if p.paid:
+                            next_session_paid = 'Yes'
+                        else:
+                            next_session_paid = 'No'
 
                 new_student = {'student_id': s.student_id,
                                'fname': s.fname,
@@ -587,6 +643,8 @@ def get_all_students():
                                'pref_day2': s.pref_day2,
                                'pref_start_time2': s.pref_start_time2,
                                'pref_end_time2': s.pref_end_time2,
+                               'current_session_paid': current_session_paid,
+                               'next_session_paid': next_session_paid
                                }
 
                 userdata['students'].append(new_student)
@@ -1057,7 +1115,7 @@ def add_scheduled_classes():
             return "Invalid token provided"
 
         userdata={}
-        session = None;
+        session = None
 
         if data['selectedSession'] == 'current':
             session = Session.query.filter(Session.current_session == True).first()
@@ -1072,14 +1130,151 @@ def add_scheduled_classes():
             new_class = Classes(class_start=c[0],
                                 class_end=c[1],
                                 student_id=data['studentId'],
-                                session_id=session.session_id
+                                session_id=session.session_id,
                                 )
 
             db.session.add(new_class)
 
+        new_payment = Payments(student_id=data['studentId'],
+                               session_id=session.session_id,
+                               price=data['price'],
+                               paid=False
+                               )
+
+        db.session.add(new_payment)
+
         db.session.commit()
 
-        userdata['scheduleSubmitted'] = True
+        userdata['classScheduled'] = True
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/get_payment', methods=['POST'])
+def get_payment_info():
+    if request.method == 'POST':
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        userdata = {}
+
+        with open ('testfile.txt','w') as f:
+            json.dump(data, f)
+
+        try:
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        else:
+            id = data['id']
+            s = Students.query.filter(Students.student_id == id).first()
+            current_session = Session.query.filter(Session.current_session == True).first()
+            next_session = Session.query.filter(Session.next_session == True).first()
+            current_status = None
+            next_status = None
+            current_total = None
+            next_total = None
+            userdata['current_classes'] = []
+            userdata['next_classes'] = []
+
+            for p in s.payments:
+
+                if p.session_id == current_session.session_id:
+
+                    current_status = p.paid
+                    current_classes = Classes.query.filter(Classes.student_id == id).filter(
+                        Classes.session_id == p.session_id).all()
+                    current_total = len(current_classes) * p.price
+
+                    for c in current_classes:
+
+                        new_class = {'class_start': c.class_start,
+                                     'class_end': c.class_end
+                                     }
+
+                        userdata['current_classes'].append(new_class)
+
+                if p.session_id == next_session.session_id:
+
+                    next_status = p.paid
+                    next_classes = Classes.query.filter(Classes.student_id == id).filter(
+                        Classes.session_id == p.session_id).all()
+                    next_total = len(next_classes) * p.price
+
+                    for c in next_classes:
+
+                        new_class = {'class_start': c.class_start,
+                                     'class_end': c.class_end
+                                     }
+
+                        userdata['next_classes'].append(new_class)
+
+            userdata['fname'] = s.fname
+            userdata['lname'] = s.lname
+            userdata['current_start_date'] = current_session.start_date.isoformat()
+            userdata['current_end_date'] = current_session.end_date.isoformat()
+            userdata['next_start_date'] = next_session.start_date.isoformat()
+            userdata['next_start_date'] = next_session.end_date.isoformat()
+            userdata['current_status'] = current_status
+            userdata['next_status'] = next_status
+            userdata['current_total'] = current_total
+            userdata['next_total'] = next_total
+
+            return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/get_reschedule', methods=['POST'])
+def get_reschedule():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            token = jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        userdata={}
+
+        user_id = token['user_id']
+        user = Users.query.filter(Users.public_id == user_id).first()
+        session = Session.query.filter(Session.current_session == True).first()
+        today=arrow.now()
+        userdata['students'] = []
+
+        for s in user.students:
+
+            current_classes = []
+
+            for c in s.classes:
+
+                if c.class_start.date() >= session.start_date.date() and c.class_start.date() <= session.end_date.date() and c.class_start.date() > today.date():
+
+                    current_classes.append(c.class_start.date().isoformat())
+
+            new_student= {'student_id': s.student_id,
+                          'student_name': s.fname + ' ' + s.lname,
+                          'classes': current_classes
+                          }
+
+            userdata['students'].append(new_student)
 
         return jsonify(userdata)
 

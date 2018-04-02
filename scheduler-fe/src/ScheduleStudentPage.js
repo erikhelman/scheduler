@@ -116,7 +116,7 @@ class ScheduleStudentPage extends React.Component {
     });
   }
 
-  handleInputChange = (idx) => (event) => {
+  handleInputChange = (event) => {
     this.setState({ [event.target.name] : event.target.value});
   }
 
@@ -200,7 +200,7 @@ class ScheduleStudentPage extends React.Component {
       }
       //scheduleDates.push(newDates);
     })
-    console.log(newDates);
+
     this.setState({ fullName: this.state.students[this.state.studentId].fname + ' ' + this.state.students[this.state.studentId].lname})
     this.setState({ scheduleDates: newDates });
     this.setState({ modalOpen: true });
@@ -278,18 +278,19 @@ class ScheduleStudentPage extends React.Component {
 
   handleSubmit() {
 
-    var token = this.state.token;
-    var scheduleDates = this.state.scheduleDates;
-    var selectedSession = this.state.selectedSession;
-    var studentId = this.state.students[this.state.studentId].student_id;
+    let token = this.state.token;
+    let scheduleDates = this.state.scheduleDates;
+    let selectedSession = this.state.selectedSession;
+    let studentId = this.state.students[this.state.studentId].student_id;
+    let price = this.state.price;
 
-    console.log(scheduleDates);
     axios.post('/add_scheduled_classes', {
 
       token: token,
       scheduleDates: scheduleDates,
       selectedSession: selectedSession,
-      studentId: studentId
+      studentId: studentId,
+      price: price
 
     })
     .then(response => {
