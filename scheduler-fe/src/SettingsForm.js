@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Rail, Divider, Message, Form, Button, Segment, Container, Header } from 'semantic-ui-react';
+import { Checkbox, Table, Modal, Rail, Divider, Message, Form, Button, Segment, Container, Header } from 'semantic-ui-react';
 import Datepicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -20,9 +20,17 @@ const SettingsForm = ({
   nextStartDate,
   nextEndDate,
   numberAllowed,
-  onSubmit,
+  onSessionSubmit,
+  onRescheduleSubmit,
+  onClassTypeSubmit,
+  onClassPriceSubmit,
   notice,
-  modalOpen
+  classType,
+  numStudents,
+  classLength,
+  price,
+  existingClasses,
+  existingPrices
  }) => (
    <Form>
      <Container>
@@ -148,7 +156,8 @@ const SettingsForm = ({
        </Header>
 
        <Segment attached raised >
-
+         <Header as='h3'>Session Settings</Header>
+         <Divider />
          <Form.Group>
            <Form.Field
              label='Current Session Start Date'
@@ -187,7 +196,16 @@ const SettingsForm = ({
              selected={nextEndDate}
            />
          </Form.Group>
-
+         <Button
+           type='submit'
+           primary
+           size='small'
+           onClick={onSessionSubmit}
+         >
+           Update Session Settings
+         </Button>
+         <Header as='h3'>Class Reschedule Settings</Header>
+         <Divider />
          <Form.Group widths='equal'>
            <Form.Input
              fluid
@@ -205,15 +223,130 @@ const SettingsForm = ({
              value={notice}
            />
          </Form.Group>
-
          <Button
            type='submit'
            primary
            size='small'
-           onClick={onSubmit}
+           onClick={onRescheduleSubmit}
          >
-           Submit
+           Update Reschedule Settings
          </Button>
+         <Header as='h3'>Class Settings</Header>
+         <Divider />
+         <Form.Group widths='equal'>
+           <Form.Input
+             fluid
+             label='Class Type'
+             name='classType'
+             onChange={handleInputChange}
+             value={classType}
+           />
+           <Form.Input
+             fluid
+             label='Number of Students'
+             name='numStudents'
+             onChange={handleInputChange}
+             value={numStudents}
+           />
+         </Form.Group>
+         <Button
+           type='submit'
+           primary
+           size='small'
+           onClick={onClassTypeSubmit}
+         >
+           Update Class Types
+         </Button>
+         <br />
+         <br />
+         <Segment basic attached>
+           <Table celled>
+             <Table.Header>
+               <Table.Row>
+                 <Table.HeaderCell />
+                 <Table.HeaderCell>Class Type</Table.HeaderCell>
+                 <Table.HeaderCell>Number of Students</Table.HeaderCell>
+               </Table.Row>
+             </Table.Header>
+
+             <Table.Body>
+               {existingClasses.map((ec, idx) => <Table.Row key={idx} onClick = {handleRowClick.bind(this,ec)}>
+                 <Table.Cell>
+                   <Checkbox
+                     name='checkboxGroup'
+                     value={ec.class_type_id}
+                     checked={checkValue === ec.class_type_id}
+                     onChange={handleCheckChange}/>
+                 </Table.Cell>
+                 <Table.Cell
+                   children = {ec.class_type}>
+                 </Table.Cell>
+                 <Table.Cell
+                   children = {ec.num_students}>
+                 </Table.Cell>
+               </Table.Row>)}
+             </Table.Body>
+
+           </Table>
+         </Segment>
+         <br />
+         <Form.Group widths='equal'>
+           <Form.Input
+             fluid
+             label='Class Length (in minutes)'
+             name='classLength'
+             onChange={handleInputChange}
+             value={classLength}
+           />
+           <Form.Input
+             fluid
+             label='Price of Class ($)'
+             name='price'
+             onChange={handleInputChange}
+             value={price}
+           />
+         </Form.Group>
+         <Button
+           type='submit'
+           primary
+           size='small'
+           onClick={onClassPriceSubmit}
+         >
+           Update Class Prices
+         </Button>
+         <br />
+         <br />
+         <Segment basic attached>
+           <Table celled>
+             <Table.Header>
+               <Table.Row>
+                 <Table.HeaderCell />
+                 <Table.HeaderCell>Class Length (minutes)</Table.HeaderCell>
+                 <Table.HeaderCell>Price ($)</Table.HeaderCell>
+               </Table.Row>
+             </Table.Header>
+
+             <Table.Body>
+               {existingPrices.map((ep, idx) => <Table.Row key={idx} onClick = {handleRowClick.bind(this,ep)}>
+                 <Table.Cell>
+                   <Checkbox
+                     name='checkboxGroup'
+                     value={ep.class_price_id}
+                     checked={checkValue === ep.class_price_id}
+                     onChange={handleCheckChange}/>
+                 </Table.Cell>
+                 <Table.Cell
+                   children = {ep.class_length}>
+                 </Table.Cell>
+                 <Table.Cell
+                   children = {ep.class_price}>
+                 </Table.Cell>
+               </Table.Row>)}
+             </Table.Body>
+
+           </Table>
+         </Segment>
+         <br />
        </Segment>
 
        {message.summary && <Message style={{textAlign: 'center', color: 'red'}} className="message">{message.summary}</Message>}

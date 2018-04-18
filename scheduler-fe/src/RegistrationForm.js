@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Dimmer, Loader, Button, Form, Header, Message, Segment, Container, Rail, Popup, Icon } from 'semantic-ui-react';
+import { Button, Form, Header, Message, Segment, Container, Rail, Popup, Icon } from 'semantic-ui-react';
 import Datepicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Datetime from 'react-datetime';
@@ -404,4 +404,4 @@ const RegistrationForm = ({
 
 )
 
-export default RegistrationForm
+export default RegistrationForm;

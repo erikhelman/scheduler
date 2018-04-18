@@ -1,116 +1,168 @@
 import React from 'react';
 import axios from 'axios';
-import { parse, format } from 'libphonenumber-js';
 import { Redirect } from 'react-router-dom';
-import RegistrationForm from './RegistrationForm';
+import CreateScheduleForm from './CreateScheduleForm';
 
-class RegistrationPage extends React.Component {
+class CreateSchedulePage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      token: sessionStorage.getItem("token"),
       errors: {},
       timeconfig: {
         minutes : {
           step: 15
         }
       },
-      email: '',
-      fname: '',
-      lname: '',
-      password: '',
-      phone: '',
-      confirmPassword: '',
-      loading: false,
-      disabled: false,
-      success: false,
-      students: [{ dob: null,
-                  fname: '' ,
-                  lname: '',
-                  gender: '',
-                  level: '',
-                  class_type: '',
-                  class_length: '',
-                  previous_school: '',
-                  day0: '',
-                  day1: '',
-                  day2: '',
-                  startTime0: null,
-                  startTime1: null,
-                  startTime2: null,
-                  endTime0: null,
-                  endTime1: null,
-                  endTime2: null,
-                  errors: {}
-                }]
+      minAge: '',
+      maxAge: '',
+      minLevel: '',
+      maxLevel: '',
+      selectedClassType: '',
+      selectedClassLength: '',
+      selectedDay: '',
+      startTime: '',
+      locations: [],
+      schedules: [],
+      sessions: [],
+      lanes: [],
+      newLocation: '',
+      newSchedule: '',
+      selectedLocation: '',
+      scheduleLocation: '',
+      selectedSchedule: '',
+      selectedSession: '',
+      selectedLane: '',
+      newLocationLanes: '',
+      classTypes: [],
+      classLengths: [],
+      checked: false,
+      selectedQueryLocation: '',
+      selectedQuerySchedule: '',
+      querySchedules: []
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleStudentChange = this.handleStudentChange.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.querySubmit = this.querySubmit.bind(this);
 
   }
 
-  validateRegisterForm = () => {
+  clearFields = () => {
+    this.setState({ selectedClassType: ''});
+    this.setState({ selectedClassLength: ''});
+    this.setState({ selectedDay: ''});
+    this.setState({ startTime: ''});
+    this.setState({ minLevel: ''});
+    this.setState({ maxLevel: ''});
+    this.setState({ minAge: ''});
+    this.setState({ maxAge: ''});
+    this.setState({ selectedLane: ''});
+    this.setState({ checked: false});
+  }
+
+  componentDidMount = () => {
+    axios.post('/get_schedule_def', {
+      //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
+      token: this.state.token
+
+    })
+    .then(response => {
+
+      this.setState ({ locations: response.data.locations });
+      this.setState ({ classTypes: response.data.class_types });
+      this.setState ({ classLengths: response.data.class_lengths });
+
+    })
+    .catch(function (error) {
+      if (error.response) {
+          console.log("response " + error.response);
+      } else if (error.request) {
+          console.log("Request" + error.request);
+      } else {
+          console.log('Error', error.message);
+      }
+      console.log("config " + error.config);
+      //this.setState({errors: {summary: error}});
+    });
+  }
+
+  createSchedule = () => {
+    axios.post('/create_schedule', {
+      //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
+      token: this.state.token,
+      scheduleName: this.state.newSchedule,
+      scheduleLocation: this.state.scheduleLocation
+
+    })
+    .then(response => {
+
+      if (response.data.scheduleUpdate === true) {
+        this.setState({ newSchedule: '' });
+        this.setState({ scheduleLocation: '' });
+        this.setState({ locations: response.data.locations })
+      } else {
+        this.setState({errors: {summary: response.data.errors}});
+      }
+    })
+    .catch(function (error) {
+      if (error.response) {
+          console.log("response " + error.response);
+      } else if (error.request) {
+          console.log("Request" + error.request);
+      } else {
+          console.log('Error', error.message);
+      }
+      console.log("config " + error.config);
+      //this.setState({errors: {summary: error}});
+    });
+  }
+
+  createLocation = () => {
+    axios.post('/create_location', {
+      //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
+      token: this.state.token,
+      locationName: this.state.newLocation,
+      locationLanes: this.state.newLocationLanes
+
+    })
+    .then(response => {
+
+      if (response.data.locationUpdate === true) {
+        console.log(response.data)
+        this.setState({ newLocation: '' });
+        this.setState({ newLocationLanes: ''});
+        this.setState({ locations: response.data.locations });
+      } else {
+        this.setState({errors: {summary: response.data.errors}});
+      }
+    })
+    .catch(function (error) {
+      if (error.response) {
+          console.log("response " + error.response);
+      } else if (error.request) {
+          console.log("Request" + error.request);
+      } else {
+          console.log('Error', error.message);
+      }
+      console.log("config " + error.config);
+      //this.setState({errors: {summary: error}});
+    });
+  }
+
+  handleCheckChange = (e) => {
+    this.setState({ checked: !this.state.checked});
+
+  }
+
+  validateForm = () => {
 
     let isFormValid = true;
     var error = {};
 
     this.setState({errors: {}});
-
-    if (this.state.fname.trim().length === 0) {
-      isFormValid = false;
-
-      error.summary = 'Please enter your first name';
-      error.fname = true;
-
-      this.setState({ errors: error });
-
-    }
-
-    if (this.state.lname.trim().length === 0) {
-      isFormValid = false;
-
-      error.summary = 'Please enter your last name';
-      error.fname = true;
-
-      this.setState({ errors: error });
-
-    }
-
-    if (this.state.email.trim().length === 0) {
-      isFormValid = false;
-
-      error.summary = 'Please enter your email address';
-      error.email = true;
-
-      this.setState({ errors: error });
-
-    }
-
-    if (this.state.password.trim().length === 0) {
-      isFormValid = false;
-
-      error.summary = 'Please provide a password';
-      error.password = true;
-
-      this.setState({ errors: error });
-
-    }
-
-    if (this.state.phone.length !== 0) {
-
-      let phoneCheck = parse(this.state.phone, "CA")
-      if (phoneCheck.phone == null) {
-
-        error.phone = true;
-        error.summary = 'Please enter a valid phone number';
-
-        this.setState({errors: error});
-        isFormValid = false;
-      }
-
-    }
 
     return isFormValid;
   }
@@ -118,36 +170,43 @@ class RegistrationPage extends React.Component {
   handleSubmit(event) {
 
     event.preventDefault();
-    let email = this.state.email;
-    let password = this.state.password;
-    let fname = this.state.fname;
-    let lname = this.state.lname;
-    let students = this.state.students;
-    let phone = parse(this.state.phone, "CA");
 
-    if (this.validateRegisterForm()) {
+    let token = this.state.token;
+    let schedule = this.state.selectedSchedule;
+    let location = this.state.selectedLocation;
+    let day = this.state.selectedDay;
+    let classType = this.state.selectedClassType;
+    let classLength = this.state.selectedClassLength;
+    let startTime = this.state.startTime;
+    let minLevel = this.state.minLevel;
+    let maxLevel = this.state.maxLevel;
+    let minAge = this.state.minAge;
+    let maxAge = this.state.maxAge;
+    let lane = this.state.selectedLane;
+    let split = this.state.checked;
 
-      this.setState({ loading: true });
-      this.setState({ disabled: true });
+    if (this.validateForm()) {
 
-      axios.post('/register', {
+      axios.post('/add_schedule_def', {
         //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
-        fname: fname,
-        lname: lname,
-        password: password,
-        email: email,
-        phone: (phone.phone != null ? phone.phone : ''),
-        students: students
+        token: token,
+        schedule: schedule,
+        day: day,
+        classType: classType,
+        classLength: classLength,
+        startTime: startTime,
+        minLevel: minLevel,
+        maxLevel: maxLevel,
+        minAge: minAge,
+        maxAge: maxAge,
+        lane: lane,
+        split: split
       })
       .then(response => {
 
-        if (response.data.isRegistered === "true") {
-          this.setState({ loading: false });
-          this.setState({ disabled: false});
-          this.setState({ success: true });
+        if (response.data.scheduleUpdated === "true") {
+          this.clearFields()
         } else {
-          this.setState({ loading: false });
-          this.setState({ disabled: false});
           this.setState({errors: {summary: response.data.errors}});
         }
       })
@@ -159,7 +218,7 @@ class RegistrationPage extends React.Component {
         } else {
             console.log('Error', error.message);
         }
-        console.log("config " + error.config);
+
         //this.setState({errors: {summary: error}});
       });
     }
@@ -169,152 +228,92 @@ class RegistrationPage extends React.Component {
     this.setState({ [event.target.name] : event.target.value});
   }
 
-  handleStudentChange = (idx) => (event) => {
+  handleSelectChange = (event, data) => {
+    this.setState( {[data.name]: data.value });
 
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, [event.target.name]: event.target.value };
-    });
+    if (data.name === 'selectedLocation') {
 
-    this.setState({ students: newStudents });
+      let lanes = [];
+
+      let location = this.state.locations.filter(l => l.key === data.value);
+      let i;
+
+      let schedules = location[0].schedules.map(s => {
+
+        return ({key: s.schedule_id,
+                text: s.schedule_name,
+                value: s.schedule_id})
+        }
+      );
+
+      for (i = 1; i <= location[0].lanes; i++) {
+        lanes.push(
+          {key: i,
+          text: i,
+          value: i
+          }
+
+        )
+      }
+
+      this.setState({ schedules: schedules });
+      this.setState({ selectedLane: '' })
+      this.setState({ lanes: lanes })
+    }
+
+    if (data.name === 'selectedQueryLocation') {
+
+      let location = this.state.locations.filter(l => l.key === data.value);
+      let i;
+
+      let querySchedules = location[0].schedules.map(s => {
+
+        return ({key: s.schedule_id,
+                text: s.schedule_name,
+                value: s.schedule_id})
+        }
+      );
+
+      this.setState({ querySchedules: querySchedules });
+
+    }
   }
 
-  handleStudentGenderChange = (idx) => (event, data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, gender: data.value };
-    });
-
-    this.setState({ students: newStudents });
+  handleStartTimeChange = (data) => {
+      this.setState({ startTime: data });
   }
 
-  handleLevelChange = (idx) => (event, data) => {
+  querySubmit(event) {
 
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, level: data.value };
-    });
+    event.preventDefault();
 
-    this.setState({ students: newStudents });
-  }
+    let token = this.state.token;
+    let schedule = this.state.selectedQuerySchedule;
+    let location = this.state.selectedQueryLocation;
 
-  handleClassLengthChange = (idx) => (event, data) => {
+    axios.post('/query_schedule', {
+        //  axios.post('https://glacial-sierra-90432.herokuapp.com/register', {
+        token: token,
+        schedule: schedule,
+        location: location,
 
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, class_length: data.value };
-    });
+      })
+      .then(response => {
+        console.log(response.data)
+        this.setState({ querySchedule: response.data.querySchedule });
 
-    this.setState({ students: newStudents });
-  }
+      })
+      .catch(function (error) {
+        if (error.response) {
+            console.log("response " + error.response);
+        } else if (error.request) {
+            console.log("Request" + error.request);
+        } else {
+            console.log('Error', error.message);
+        }
 
-  handleClassTypeChange = (idx) => (event, data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, class_type: data.value };
-    });
-
-    this.setState({ students: newStudents });
-  }
-
-  handleDateofBirthChange = (idx) => (date) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-      return { ...student, dob: date };
-    });
-
-    this.setState({ students: newStudents });
-  }
-
-  handleDayChange = (idx) => (event, data) => {
-
-      const newStudents = this.state.students.map((student, sidx) => {
-        if (idx !== sidx) return student;
-          return { ...student, [data.name]: data.value };
-        });
-
-        this.setState({ students: newStudents });
-  }
-
-  handleStartTimeChange0 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, startTime0: data };
       });
 
-      this.setState({ students: newStudents });
-
-  }
-
-  handleStartTimeChange1 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, startTime1: data };
-      });
-
-      this.setState({ students: newStudents });
-
-  }
-
-  handleStartTimeChange2 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, startTime2: data };
-      });
-
-      this.setState({ students: newStudents });
-
-  }
-
-  handleEndTimeChange0 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, endTime0: data };
-      });
-
-      this.setState({ students: newStudents });
-
-  }
-
-  handleEndTimeChange1 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, endTime1: data };
-      });
-
-      this.setState({ students: newStudents });
-
-  }
-
-  handleEndTimeChange2 = (idx) => (data) => {
-
-    const newStudents = this.state.students.map((student, sidx) => {
-      if (idx !== sidx) return student;
-        return { ...student, endTime2: data };
-      });
-
-      this.setState({ students: newStudents });
-
-  }
-
-  handleAddStudent = () => {
-    this.setState({
-      students: this.state.students.concat([{ dob: null }])
-      });
-  }
-
-  handleRemoveStudent = (idx) => () => {
-    this.setState({
-      students: this.state.students.filter((s, sidx) => idx !== sidx)
-    });
   }
 
   render() {
@@ -324,39 +323,47 @@ class RegistrationPage extends React.Component {
       }}/>;
     }
     return (
-      <RegistrationForm
+      <CreateScheduleForm
         onSubmit={this.handleSubmit}
         onInputChange={this.handleInputChange}
-        onStudentChange={this.handleStudentChange}
+        onSelectChange={this.handleSelectChange}
         errors={this.state.errors}
-        fname={this.state.fname}
-        lname={this.state.lname}
-        password={this.state.password}
-        confirmPassword={this.state.confirmPassword}
-        phone={this.state.phone}
-        email={this.state.email}
-        addStudent = {this.handleAddStudent}
-        removeStudent = {this.handleRemoveStudent}
-        students={this.state.students}
-        onGenderChange={this.handleStudentGenderChange}
-        onDateChange={this.handleDateofBirthChange}
-        onClassTypeChange={this.handleClassTypeChange}
-        onClassLengthChange={this.handleClassLengthChange}
-        onLevelChange={this.handleLevelChange}
-        onDayChange={this.handleDayChange}
-        onStartTimeChange0={this.handleStartTimeChange0}
-        onStartTimeChange1={this.handleStartTimeChange1}
-        onStartTimeChange2={this.handleStartTimeChange2}
-        onEndTimeChange0={this.handleEndTimeChange0}
-        onEndTimeChange1={this.handleEndTimeChange1}
-        onEndTimeChange2={this.handleEndTimeChange2}
+        onStartTimeChange={this.handleStartTimeChange}
         timeconfig={this.state.timeconfig}
-        loading={this.state.loading}
-        disabled={this.state.disabled}
-
+        schedules={this.state.schedules}
+        scheduleId={this.state.scheduleId}
+        selectedDay={this.state.selectedDay}
+        selectedClassLength={this.state.selectedClassLength}
+        selectedClassType={this.state.selectedClassType}
+        minLevel={this.state.minLevel}
+        maxLevel={this.state.maxLevel}
+        minAge={this.state.minAge}
+        maxAge={this.state.maxAge}
+        startTime={this.state.startTime}
+        locations={this.state.locations}
+        sessions={this.state.sessions}
+        newLocation={this.state.newLocation}
+        newSchedule={this.state.newSchedule}
+        createLocation={this.createLocation}
+        createSchedule={this.createSchedule}
+        selectedLocation={this.state.selectedLocation}
+        scheduleLocation={this.state.scheduleLocation}
+        selectedSchedule={this.state.selectedSchedule}
+        selectedLane={this.state.selectedLane}
+        lanes={this.state.lanes}
+        newLocationLanes={this.state.newLocationLanes}
+        checked={this.state.checked}
+        handleCheckChange={this.handleCheckChange}
+        clearFields={this.clearFields}
+        classTypes={this.state.classTypes}
+        classLengths={this.state.classLengths}
+        querySchedules={this.state.querySchedules}
+        selectedQueryLocation={this.state.selectedQueryLocation}
+        selectedQuerySchedule={this.state.selectedQuerySchedule}
+        querySubmit={this.querySubmit}
       />
     );
   }
 }
 
-export default RegistrationPage;
+export default CreateSchedulePage;

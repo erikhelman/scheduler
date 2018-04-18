@@ -87,6 +87,8 @@ class Session(db.Model):
     next_session = db.Column(db.Boolean)
     class_id = db.relationship('Classes', backref='session', lazy='dynamic')
     payment_id = db.relationship('Payments', backref='payments', lazy='dynamic')
+    #session_schedule = db.relationship('Schedules', backref='session', lazy='dynamic')
+
 
 class Classes(db.Model):
     class_id = db.Column(db.Integer, primary_key=True)
@@ -104,22 +106,36 @@ class Payments(db.Model):
     paid = db.Column(db.Boolean)
 
 
+class Locations(db.Model):
+    location_id = db.Column(db.Integer, primary_key=True)
+    location_name = db.Column(db.String(50))
+    lanes = db.Column(db.Integer)
+    loc_schedule = db.relationship('Schedules', backref='locations', lazy='dynamic')
+
+
 class Schedules(db.Model):
     schedule_id = db.Column(db.Integer, primary_key=True)
-    location = db.Column(db.String(25))
+    schedule_name = db.Column(db.String(25))
+    #session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.location_id'))
+    definitions = db.relationship('ScheduleDefinitions', backref='schedule', lazy='dynamic')
+
+
+class ScheduleDefinitions(db.Model):
+    schedule_def_id = db.Column(db.Integer, primary_key=True)
     lane = db.Column(db.String(10))
     max_students = db.Column(db.Integer)
     min_level = db.Column(db.Integer)
     max_level = db.Column(db.Integer)
-    class_type = db.Column(db.String(30))
-    class_length = db.Column(db.Integer)
-    class_start = db.Column(db.DateTime(timezone=True))
-    class_end = db.Column(db.DateTime(timezone=True))
-
-
-class Locations(db.Model):
-    location_id = db.Column(db.Integer, primary_key=True)
-    location_name = db.Column(db.String(50))
+    class_type_id = db.Column(db.Integer, db.ForeignKey('class_types.class_type_id'))
+    class_type = db.relationship('ClassTypes', foreign_keys=[class_type_id])
+    class_length_id = db.Column(db.Integer, db.ForeignKey('prices.price_id'))
+    class_length = db.relationship('Prices', foreign_keys=[class_length_id])
+    class_start = db.Column(db.Time(timezone=True))
+    class_end = db.Column(db.Time(timezone=True))
+    split_lane = db.Column(db.Boolean)
+    spots_left = db.Column(db.Integer)
+    schedule_id = db.Column(db.Integer, db.ForeignKey('schedules.schedule_id'))
 
 
 class Instructors(db.Model):
@@ -128,6 +144,18 @@ class Instructors(db.Model):
     lname = db.Column(db.String(50))
     phone = db.Column(db.String(10))
     email = db.Column(db.String(50))
+
+
+class ClassTypes(db.Model):
+    class_type_id = db.Column(db.Integer, primary_key=True)
+    class_type = db.Column(db.String(30))
+    num_students = db.Column(db.Integer)
+
+
+class Prices(db.Model):
+    price_id = db.Column(db.Integer, primary_key=True)
+    class_length = db.Column(db.Integer)
+    price = db.Column(db.Integer)
 
 
 @app.route('/login', methods=['POST'])
@@ -208,7 +236,7 @@ def register():
                                        status='Pending',
                                        emerg_contact=None,
                                        emerg_phone=None,
-                                       previous_school=s['previous_school'],
+                                       previous_school=s['previous_school'] if 'previous_school' in s else None,
                                        pref_day0=s['day0'] if 'day0' in s else None,
                                        pref_start_time0=s['startTime0'] if 'startTime0' in s else None,
                                        pref_end_time0=s['endTime0'] if 'endTime0' in s else None,
@@ -938,6 +966,7 @@ def get_config():
 
         config_data = Config.query.first()
 
+
         current_session = Session.query.filter(Session.current_session == True).first()
         next_session = Session.query.filter(Session.next_session == True).first()
 
@@ -970,6 +999,28 @@ def get_config():
             userdata['next_start_date'] = next_session.start_date.isoformat()
             userdata['next_end_date'] = next_session.end_date.isoformat()
 
+        class_types = ClassTypes.query.all()
+        userdata['existing_classes'] = []
+
+        for ct in class_types:
+
+            new_type = {'class_type_id': ct.class_type_id,
+                        'class_type': ct.class_type,
+                        'num_students': ct.num_students}
+
+            userdata['existing_classes'].append(new_type)
+
+        prices = Prices.query.all()
+        userdata['existing_prices'] = []
+
+        for p in prices:
+
+            new_price = {'price_id': p.price_id,
+                         'class_length': p.class_length,
+                         'price': p.price}
+
+            userdata['existing_prices'].append(new_price)
+
         return jsonify(userdata)
 
     return ''
@@ -995,36 +1046,83 @@ def config():
             return "Invalid token provided"
 
         userdata={}
-        config = Config.query.first()
 
-        if Config.query.first() is None:
+        if data['type'] == 'reschedule':
+            config = Config.query.first()
 
-            config = Config(reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None,
-                            notice_required=data['notice'] if data['notice'] is not '' else None)
+            if 'numberAllowed' not in data:
+                data['numberAllowed'] = None
 
-        else:
-            config.reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None
-            config.notice_required=data['notice'] if data['notice'] is not '' else None
+            if 'notice' not in data:
+                data['notice'] = None
 
-        db.session.add(config)
-        db.session.commit()
+            if Config.query.first() is None:
 
-        Session.query.update({Session.current_session: False})
-        Session.query.update({Session.next_session: False})
+                config = Config(reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None,
+                                notice_required=data['notice'] if data['notice'] is not '' else None)
 
-        current_session = Session(start_date=data['currentStartDate'],
-                                  end_date=data['currentEndDate'],
-                                  current_session=True,
-                                  next_session=False)
+            else:
+                config.reschedules_allowed=data['numberAllowed'] if data['numberAllowed'] is not '' else None
+                config.notice_required=data['notice'] if data['notice'] is not '' else None
 
-        next_session = Session(start_date=data['nextStartDate'],
-                               end_date=data['nextEndDate'],
-                               current_session=False,
-                               next_session=True)
+            db.session.add(config)
+            db.session.commit()
 
-        db.session.add(current_session)
-        db.session.add(next_session)
-        db.session.commit()
+
+        if data['type'] == 'session':
+
+            Session.query.update({Session.current_session: False})
+            Session.query.update({Session.next_session: False})
+
+            current_session = Session(start_date=data['currentStartDate'],
+                                      end_date=data['currentEndDate'],
+                                      current_session=True,
+                                      next_session=False)
+
+            next_session = Session(start_date=data['nextStartDate'],
+                                   end_date=data['nextEndDate'],
+                                   current_session=False,
+                                   next_session=True)
+
+            db.session.add(current_session)
+            db.session.add(next_session)
+            db.session.commit()
+
+        if data['type'] == 'classTypes':
+
+            new_class_type = ClassTypes(class_type = data['classType'],
+                                        num_students = data['numStudents'])
+
+            db.session.add(new_class_type)
+            db.session.commit()
+
+            class_types = ClassTypes.query.all()
+            userdata['existing_classes'] = []
+
+            for ct in class_types:
+                new_type = {'class_type_id': ct.class_type_id,
+                            'class_type': ct.class_type,
+                            'num_students': ct.num_students}
+
+                userdata['existing_classes'].append(new_type)
+
+        if data['type'] == 'price':
+
+            new_price = Prices(class_length = data['classLength'],
+                               price = data['price'])
+
+            db.session.add(new_price)
+            db.session.commit()
+
+            prices = Prices.query.all()
+            userdata['existing_prices'] = []
+
+            for p in prices:
+                new_price = {'price_id': p.price_id,
+                             'class_length': p.class_length,
+                             'price': p.price}
+
+                userdata['existing_prices'].append(new_price)
 
         userdata['configUpdate'] = True
 
@@ -1281,8 +1379,266 @@ def get_reschedule():
     return ''
 
 
-@app.route('/schedule', methods= ['GET'])
-def get_schedule():
+@app.route('/create_schedule', methods=['POST'])
+def create_schedule():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        new_schedule = Schedules(schedule_name=data['scheduleName'],
+                                 location_id=data['scheduleLocation'])
+
+        db.session.add(new_schedule)
+        db.session.commit()
+
+
+        userdata={}
+
+        locations = Locations.query.all()
+        userdata['locations'] = []
+
+        for l in locations:
+
+            location_list = {'key': l.location_id, 'text': l.location_name, 'value': l.location_id, 'lanes': l.lanes}
+            location_list['schedules'] = []
+
+            for ls in l.loc_schedule:
+                schedule_list = {'schedule_name': ls.schedule_name, 'schedule_id': ls.schedule_id}
+                location_list['schedules'].append(schedule_list)
+
+            userdata['locations'].append(location_list)
+
+        userdata['scheduleUpdate'] = True
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/create_location', methods=['POST'])
+def create_location():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        userdata={}
+
+        new_location = Locations(location_name = data['locationName'],
+                                 lanes = data['locationLanes']
+                                 )
+
+        db.session.add(new_location)
+        db.session.commit()
+
+        locations = Locations.query.all()
+        userdata['locations'] = []
+
+        for l in locations:
+
+            location_list = {'key': l.location_id, 'text': l.location_name, 'value': l.location_id, 'lanes': l.lanes}
+            location_list['schedules'] = []
+
+            for ls in l.loc_schedule:
+                schedule_list = {'schedule_name': ls.schedule_name, 'schedule_id': ls.schedule_id}
+                location_list['schedules'].append(schedule_list)
+
+            userdata['locations'].append(location_list)
+
+        userdata['locationUpdate'] = True
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/get_schedule_def', methods=['POST'])
+def get_schedule_def():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        locations = Locations.query.all()
+        class_types = ClassTypes.query.all()
+        prices = Prices.query.all()
+
+        userdata={}
+        userdata['class_types'] = []
+        userdata['class_lengths'] = []
+        userdata['locations'] = []
+        userdata['prices'] = []
+
+        for l in locations:
+            location_list = {'key': l.location_id, 'text': l.location_name, 'value': l.location_id, 'lanes': l.lanes}
+            location_list['schedules'] = []
+
+            for ls in l.loc_schedule:
+                schedule_list = {'schedule_name': ls.schedule_name, 'schedule_id': ls.schedule_id}
+                location_list['schedules'].append(schedule_list)
+
+            userdata['locations'].append(location_list)
+
+        for c in class_types:
+            type_list = {'key': c.class_type_id, 'text': c.class_type, 'value': c.class_type_id}
+            userdata['class_types'].append(type_list)
+
+        for p in prices:
+            class_lengths = {'key': p.price_id, 'text': p.class_length, 'value': p.price_id}
+            userdata['class_lengths'].append(class_lengths)
+
+
+        '''for s in sessions:
+            if s.current_session is True:
+                session_list = {'key': s.session_id,
+                                'text': 'Current Session (' + arrow.get(s.start_date).format('MMM Do') + ' - ' + arrow.get(s.end_date).format('MMM Do') + ')',
+                                'value': s.session_id}
+
+                userdata['sessions'].append(session_list)
+
+            if s.next_session is True:
+                session_list = {'key': s.session_id,
+                                'text': 'Next Session (' + arrow.get(s.start_date).format('MMM Do') + ' - ' + arrow.get(s.end_date).format('MMM Do') + ')',
+                                'value': s.session_id}
+
+                userdata['sessions'].append(session_list)
+        '''
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/add_schedule_def', methods=['POST'])
+def add_schedule_def():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        class_type = ClassTypes.query.filter(ClassTypes.class_type_id == data['classType']).first()
+        class_length = Prices.query.filter(Prices.price_id == data['classLength']).first()
+
+        userdata = {}
+
+        new_defn = ScheduleDefinitions(lane = data['lane'],
+                                       max_students = class_type.num_students,
+                                       min_level = data['minLevel'],
+                                       max_level = data['maxLevel'],
+                                       class_type_id = data['classType'],
+                                       class_length_id = data['classLength'],
+                                       class_start = arrow.get(data['startTime']).time(),
+                                       class_end = arrow.get(data['startTime']).shift(minutes=+ class_length.class_length).time(),
+                                       split_lane = data['split'],
+                                       spots_left = class_type.num_students,
+                                       schedule_id = data['schedule'])
+
+        db.session.add(new_defn)
+        db.session.commit()
+
+        userdata['scheduleUpdate'] = True
+
+        return jsonify(userdata)
+
+
+    return ''
+
+
+@app.route('/query_schedule', methods=['POST'])
+def query_schedule():
+    if request.method == 'POST':
+
+        payload = request.data.decode('utf8')
+        data = json.loads(payload)
+
+        with open('testfile.txt', 'w') as f:
+            json.dump(data, f)
+
+        try:
+            jwt.decode(data['token'], app.config['SECRET_KEY'], algorithms='HS256')
+
+        except jwt.ExpiredSignatureError:
+            return "Token has expired, please log in again"
+
+        except (jwt.DecodeError, jwt.InvalidTokenError):
+            return "Invalid token provided"
+
+        schedule = Schedules.query.filter(Schedules.schedule_id == data['schedule']).first()
+
+        userdata={}
+        userdata['definitions'] = []
+
+        for d in schedule.definitions:
+            new_defn = {'lane': d.lane,
+                        'max_students': d.max_students,
+                        'min_level': d.min_level,
+                        'max_level': d.max_level,
+                        'class_length': d.class_length.class_length,
+                        'class_type': d.class_type.class_type,
+                        'class_start': d.class_start.isoformat(),
+                        'class_end': d.class_end.isoformat(),
+                        'split_lane': d.split_lane,
+                        'spots_left': d.spots_left}
+
+            userdata['definitions'].append(new_defn)
+
+
+        return jsonify(userdata)
+
+    return ''
+
+
+@app.route('/do_the_schedule', methods= ['GET'])
+def do_the_schedule():
     if request.method == 'GET':
 
         header = request.headers.get('Authorization').split(' ')

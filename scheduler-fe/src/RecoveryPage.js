@@ -27,7 +27,7 @@ class RecoveryPage extends React.Component {
 
     this.setState({message: {}});
 
-    if (this.state.email.trim() == '') {
+    if (this.state.email.trim() === '') {
       this.setState({message: {summary: "Please enter a valid email address."}});
       isFormValid = false;
       return isFormValid;

@@ -1,41 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Dimmer, Loader, Button, Form, Header, Message, Segment, Container, Rail, Popup, Icon } from 'semantic-ui-react';
-import Datepicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { Grid, Dropdown, Table, Divider, Button, Form, Header, Message, Segment, Container, Rail, Checkbox } from 'semantic-ui-react';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
-
-const gender = [
-  { key : 'm', text: 'Male', value: 'm' },
-  { key : 'f', text: 'Female', value: 'f' }
-];
-
-const classType = [
-  { key: 'group', text: 'Group', value: 'group'},
-  { key: 'semi', text: 'Semi-Private', value: 'semi' },
-  { key: 'private', text: 'Private', value: 'private' }
-]
-
-const classLength = [
-  { key: 45, text: '45 minutes', value: 45 },
-  { key: 60, text: '1 hour', value: 60 }
-]
-
-const levels = [
-  { key: 1, text: '1', value: 1 },
-  { key: 2, text: '2', value: 2 },
-  { key: 3, text: '3', value: 3 },
-  { key: 4, text: '4', value: 4 },
-  { key: 5, text: '5', value: 5 },
-  { key: 6, text: '6', value: 6 },
-  { key: 7, text: '7', value: 7 },
-  { key: 8, text: '8', value: 8 },
-  { key: 9, text: '9', value: 9 },
-  { key: 10, text: '10', value: 10 },
-  { key: 11, text: '11', value: 11 },
-  { key: 12, text: '12', value: 12 }
-]
 
 const daysOfTheWeek = [
   { key: 'monday', text: 'Monday', value: 'monday' },
@@ -52,354 +18,372 @@ const CreateScheduleForm = ({
   onInputChange,
   onStudentChange,
   errors,
-  email,
-  password,
-  confirmPassword,
-  fname,
-  lname,
-  phone,
-  addStudent,
-  removeStudent,
-  students,
-  onGenderChange,
-  onDateChange,
-  onClassTypeChange,
-  onClassLengthChange,
-  onLevelChange,
-  onDayChange,
-  onStartTimeChange0,
-  onStartTimeChange1,
-  onStartTimeChange2,
-  onEndTimeChange0,
-  onEndTimeChange1,
-  onEndTimeChange2,
+  onSelectChange,
+  onStartTimeChange,
   timeconfig,
-  loading,
-  disabled
+  schedules,
+  scheduleId,
+  selectedDay,
+  selectedClassLength,
+  selectedClassType,
+  minLevel,
+  maxLevel,
+  minAge,
+  maxAge,
+  startTime,
+  locations,
+  sessions,
+  lanes,
+  newLocation,
+  newSchedule,
+  createLocation,
+  createSchedule,
+  selectedLocation,
+  scheduleLocation,
+  selectedSchedule,
+  selectedSession,
+  selectedLane,
+  newLocationLanes,
+  checked,
+  handleCheckChange,
+  clearFields,
+  classTypes,
+  classLengths,
+  selectedQueryLocation,
+  selectedQuerySchedule,
+  querySchedules,
+  querySubmit
 }) => (
   <Container>
 
     <Form>
 
-      <Rail  position='left'>
+      <Rail position='left'>
         <Segment>
+          <Form.Input
+            fluid
+            label='New Location Name'
+            placeholder='Location Name'
+            name='newLocation'
+            onChange={onInputChange}
+            value={newLocation}
+          />
+          <Form.Input
+            fluid
+            label='Number of Lanes at This Location'
+            placeholder='Lanes'
+            name='newLocationLanes'
+            onChange={onInputChange}
+            value={newLocationLanes}
+          />
           <Button fluid
-            content='Add New Student'
-            icon='user plus'
+            content='Add New Location'
+            icon='home'
             labelPosition='left'
             color='blue'
-            onClick={addStudent}
+            onClick={createLocation}
+          />
+          <Divider />
+          <Form.Input
+            fluid
+            label='New Schedule Name'
+            placeholder='Schedule Name'
+            name='newSchedule'
+            onChange={onInputChange}
+            value={newSchedule}
           />
 
+          <Form.Select
+            fluid
+            label='For Which Location?'
+            placeholder='Locations'
+            name='scheduleLocation'
+            onChange={onSelectChange}
+            options={locations}
+            value={scheduleLocation}
+          />
+
+          <Button fluid
+            content='Add New Schedule'
+            icon='table'
+            labelPosition='left'
+            color='blue'
+            onClick={createSchedule}
+          />
         </Segment>
       </Rail>
       <Header block as='h2' attached='top' color='blue' >
-        Registration
+        Create Schedule
       </Header>
       <Segment attached>
         <Form.Group widths='equal'>
-          <Form.Input
+
+          <Form.Select
             fluid
-            icon='user'
-            iconPosition='left'
-            placeholder='First Name'
-            value={fname}
-            name='fname'
-            onChange={onInputChange}
-            error={errors.fname}
+            label='Location'
+            placeholder='Locations'
+            name='selectedLocation'
+            onChange={onSelectChange}
+            options={locations}
+            value={selectedLocation}
           />
-          <Form.Input
+
+          <Form.Select
             fluid
-            icon='user'
-            iconPosition='left'
-            placeholder='Last Name'
-            value={lname}
-            name='lname'
-            onChange={onInputChange}
-            error={errors.lname}
+            label='Schedule'
+            placeholder='Schedules'
+            name='selectedSchedule'
+            onChange={onSelectChange}
+            options={schedules}
+            value={selectedSchedule}
+          />
+
+        </Form.Group>
+
+        <Divider />
+
+        <Form.Group widths='equal'>
+          <Form.Select
+            fluid
+            label='Day of the Week'
+            name='selectedDay'
+            onChange={onSelectChange}
+            options={daysOfTheWeek}
+            value={selectedDay}
+          />
+
+          <Form.Select
+            fluid
+            label='Class Type'
+            placeholder='Class Type'
+            name='selectedClassType'
+            onChange={onSelectChange}
+            options={classTypes}
+            value={selectedClassType}
+          />
+
+          <Form.Select
+            fluid
+            label='Class Length'
+            placeholder='Class Length'
+            name='selectedClassLength'
+            onChange={onSelectChange}
+            options={classLengths}
+            value={selectedClassLength}
+          />
+
+          <Form.Field
+            fluid
+            label='Start Time'
+            control={Datetime}
+            name='startTime'
+            onChange={onStartTimeChange}
+            dateFormat={false}
+            value={startTime}
           />
         </Form.Group>
         <Form.Group widths='equal'>
+
           <Form.Input
             fluid
-            icon='mail outline'
-            iconPosition='left'
-            placeholder='Email Address'
-            type='email'
-            value={email}
-            name='email'
+            label='Min Level'
+            placeholder='Min Level'
+            name='minLevel'
             onChange={onInputChange}
-            error={errors.email}
+            value={minLevel}
           />
+
           <Form.Input
             fluid
-            icon='phone'
-            iconPosition='left'
-            placeholder="Phone Number"
-            name="phone"
+            label='Max Level'
+            placeholder='Max Level'
+            name='maxLevel'
             onChange={onInputChange}
-            error={errors.phone}
-            value={phone}
+            value={maxLevel}
           />
-        </Form.Group>
-        <Form.Group widths='equal'>
+
           <Form.Input
             fluid
-            icon='lock'
-            iconPosition='left'
-            placeholder='Password'
-            type='password'
-            value={password}
-            name='password'
+            label='Min Age'
+            placeholder='Min Student Age'
+            name='minAge'
             onChange={onInputChange}
-            error={errors.password}
+            value={minAge}
           />
+
           <Form.Input
             fluid
-            icon='lock'
-            iconPosition='left'
-            placeholder='Confirm Password'
-            type='password'
-            value={confirmPassword}
-            name='confirmPassword'
+            label='Max Age'
+            placeholder='Max Age'
+            name='maxAge'
             onChange={onInputChange}
-            error={errors.confirmPassword}
+            value={maxAge}
           />
         </Form.Group>
-        {students.map((student, idx) => (
-          <div key={idx} style={{ paddingBottom: '10px' }} >
-            <Header block as='h3' attached='top' color='blue' >
-              Student Information
-              <Popup
-                trigger={<Icon
-                  name='user delete'
-                  style={{float:'right'}}
-                  color='blue'
-                  onClick={removeStudent(idx)}
-                         />}
-                content='Remove Student'
-              />
+        <Form.Group>
+          <Form.Select
+            label='Lane'
+            placeholder='Lane'
+            name='selectedLane'
+            onChange={onSelectChange}
+            options={lanes}
+            value={selectedLane}
+          />
+          <Checkbox
+            style={{ marginLeft: '1em', paddingTop: '2em'}}
+            name='splitLane'
+            label='Split This Lane?'
+            checked={checked}
+            onChange={handleCheckChange}
+          />
 
-            </Header>
-            <Segment raised attached>
-
-              <Form.Group>
-                <Form.Input
-                  fluid
-                  label='First Name'
-                  placeholder='First Name'
-                  name='fname'
-                  onChange={onStudentChange(idx)}
-                  value={student.fname}
-                  width={5}
-                />
-                <Form.Input
-                  fluid
-                  label='Last Name'
-                  placeholder='Last Name'
-                  name='lname'
-                  onChange={onStudentChange(idx)}
-                  value={student.lname}
-                  width={5}
-                />
-                <Form.Select
-                  fluid
-                  label='Gender'
-                  name='gender'
-                  onChange={onGenderChange(idx)}
-                  options={gender}
-                  value={student.gender}
-                  width={2}
-                />
-
-              </Form.Group>
-
-              <Form.Field
-                label='Date of Birth'
-                control={Datepicker}
-                placeholderText='Date of Birth'
-                name='dob'
-                onChange={onDateChange(idx)}
-                selected={student.dob}
-              />
-
-              <Form.Group>
-                <Form.Select
-                  fluid
-                  label='Class Type'
-                  placeholder='Class Type'
-                  name='class_type'
-                  onChange={onClassTypeChange(idx)}
-                  options={classType}
-                  value={student.class_type}
-                  width={5}
-                />
-
-                <Form.Select
-                  fluid
-                  label='Class Length'
-                  placeholder='Class Length'
-                  name='class_length'
-                  onChange={onClassLengthChange(idx)}
-                  options={classLength}
-                  value={student.class_length}
-                  width={5}
-                />
-
-                <Form.Select
-                  fluid
-                  label='Level'
-                  placeholder='Level'
-                  name='level'
-                  onChange={onLevelChange(idx)}
-                  options={levels}
-                  value={student.level}
-                  width={2}
-                />
-              </Form.Group>
-
-              <Form.Input
-                fluid
-                label='If this student has previously taken swimming lessons, please indicate where'
-                name='previous_school'
-                onChange={onStudentChange(idx)}
-                value={student.previous_school}
-              />
-
-              <p><b>Please enter up to three windows of time where you would like your class to be</b></p>
-
-              <Form.Group>
-
-                <Form.Field
-                  fluid
-                  label='Start Of Window'
-                  control={Datetime}
-                  name='startTime0'
-                  onChange={onStartTimeChange0(idx)}
-                  dateFormat={false}
-
-                  width={5}
-                  value={student.startTime0}
-                />
+        </Form.Group>
 
 
-                <Form.Field
-                  fluid
-                  label='End Of Window'
-                  control={Datetime}
-                  name='endTime0'
-                  onChange={onEndTimeChange0(idx)}
-                  dateFormat={false}
-                  timeConstraints={timeconfig}
-                  width={5}
-                  value={student.endTime0}
-
-                />
-
-                <Form.Select
-                  fluid
-                  label='Day of the Week'
-                  name='day0'
-                  onChange={onDayChange(idx)}
-                  options={daysOfTheWeek}
-                  value={student.day0}
-                  width={2}
-                />
-
-              </Form.Group>
-
-              <Form.Group>
-
-                <Form.Field
-                  label='Start Of Window'
-                  control={Datetime}
-                  name='startTime1'
-                  onChange={onStartTimeChange1(idx)}
-                  dateFormat={false}
-                  timeConstraints={timeconfig}
-                  width={5}
-                  value={student.startTime1}
-                />
-
-                <Form.Field
-                  label='End Of Window'
-                  control={Datetime}
-                  name='endTime1'
-                  onChange={onEndTimeChange1(idx)}
-                  dateFormat={false}
-                  timeConstraints={timeconfig}
-                  width={5}
-                  value={student.endTime1}
-                />
-
-                <Form.Select
-                  fluid
-                  label='Day of the Week'
-                  name='day1'
-                  onChange={onDayChange(idx)}
-                  options={daysOfTheWeek}
-                  value={student.day1}
-                  width={2}
-                />
-
-              </Form.Group>
-
-              <Form.Group>
-
-                <Form.Field
-                  label='Start Of Window'
-                  control={Datetime}
-                  name='startTime2'
-                  onChange={onStartTimeChange2(idx)}
-                  dateFormat={false}
-                  timeConstraints={timeconfig}
-                  width={5}
-                  value={student.startTime2}
-                />
-
-                <Form.Field
-                  label='End of Window'
-                  control={Datetime}
-                  name='endTime2'
-                  onChange={onEndTimeChange2(idx)}
-                  dateFormat={false}
-                  timeConstraints={timeconfig}
-                  width={5}
-                  value={student.endTime2}
-                />
-
-                <Form.Select
-                  fluid
-                  label='Day of the Week'
-                  name='day2'
-                  onChange={onDayChange(idx)}
-                  options={daysOfTheWeek}
-                  value={student.day2}
-                  width={2}
-                />
-
-              </Form.Group>
-
-            </Segment>
-          </div>
-
-        ))}
         {errors.summary && <Message style={{textAlign: 'center', color: 'red'}} className="error-message">{errors.summary}</Message>}
         <Button
-          disabled = {disabled}
-          loading={loading}
           color='blue'
-          fluid size='large'
-          type='submit'
+          size='small'
           onClick={onSubmit}
-        >Create
+        >Add
+        </Button>
+        <Button
+          color='blue'
+          size='small'
+          onClick={clearFields}
+        >Clear Fields
         </Button>
 
-        <br />
-        <p style={{textAlign: 'center'}}>Already have an account? <Link to={'/'}>Log in</Link></p>
       </Segment>
 
     </Form>
+    <Header block as='h2' attached='top' color='blue' >
+      View Schedules
+    </Header>
+    <Segment attached>
+      <Form>
+        <Form.Group widths='equal'>
+          <Form.Select
+            fluid
+            label='Location'
+            placeholder='Select Location'
+            name='selectedQueryLocation'
+            onChange={onSelectChange}
+            options={locations}
+            value={selectedQueryLocation}
+          />
+
+          <Form.Select
+            fluid
+            label='Schedule'
+            placeholder='Select Schedule'
+            name='selectedQuerySchedule'
+            onChange={onSelectChange}
+            options={querySchedules}
+            value={selectedQuerySchedule}
+          />
+        </Form.Group>
+        <Button
+          color='blue'
+          size='small'
+          onClick={querySubmit}
+        >Get Schedule
+        </Button>
+      </Form>
+
+      <Table celled definition>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>
+            </Table.HeaderCell>
+            <Table.HeaderCell colSpan='2' textAlign='center'>
+              Lane 1
+            </Table.HeaderCell>
+            <Table.HeaderCell colSpan='2' textAlign='center'>
+              Lane 2
+            </Table.HeaderCell>
+          </Table.Row>
+          <Table.Row>
+            <Table.HeaderCell>
+            </Table.HeaderCell>
+            <Table.HeaderCell textAlign='center'>
+              A
+            </Table.HeaderCell>
+            <Table.HeaderCell textAlign='center'>
+              B
+            </Table.HeaderCell>
+            <Table.HeaderCell textAlign='center'>
+              A
+            </Table.HeaderCell>
+            <Table.HeaderCell textAlign='center'>
+              B
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>8:00</Table.Cell>
+            <Table.Cell rowSpan='3'>8:00 - 8:45</Table.Cell>
+            <Table.Cell rowSpan='4'>8:00 - 9:00</Table.Cell>
+            <Table.Cell rowSpan='4'>8:00 - 9:00</Table.Cell>
+            <Table.Cell rowSpan='4'>8:00 - 9:00</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+            <Table.Cell>Open</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>9:00</Table.Cell>
+            <Table.Cell rowSpan='4'>9:00 - 10:00</Table.Cell>
+            <Table.Cell rowSpan='3'>9:00 - 9:45</Table.Cell>
+            <Table.Cell rowSpan='3'>9:00 - 9:45</Table.Cell>
+            <Table.Cell rowSpan='4'>9:00 - 10:00</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+            <Table.Cell rowSpan='3'>9:45 - 10:30</Table.Cell>
+            <Table.Cell rowSpan='3'>9:45 - 10:30</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>10:00</Table.Cell>
+            <Table.Cell rowSpan='4'>10:00 - 11:00</Table.Cell>
+            <Table.Cell rowSpan='4'>Open</Table.Cell>
+          </Table.Row><Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+            <Table.Cell rowSpan='2'>Open</Table.Cell>
+            <Table.Cell rowSpan='2'>Open</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>11:00</Table.Cell>
+            <Table.Cell></Table.Cell>
+            <Table.Cell></Table.Cell>
+            <Table.Cell></Table.Cell>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+
+
+
+        </Table.Body>
+      </Table>
+    </Segment>
   </Container>
 
 )

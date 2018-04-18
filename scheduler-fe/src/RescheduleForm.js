@@ -1,8 +1,5 @@
 import React from 'react';
 import { Container, Header, Segment, Message, Form, Button } from 'semantic-ui-react';
-import Datepicker from 'react-datepicker';
-import moment from 'moment';
-import 'react-datepicker/dist/react-datepicker.css';
 
 const RescheduleForm = ({
   onChange,

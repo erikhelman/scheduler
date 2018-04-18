@@ -1,10 +1,7 @@
 import React from 'react';
 import { Popup, Message, Modal, Table, Icon, Form, Button, Segment, Container, Header } from 'semantic-ui-react';
-import Datepicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
-import moment from 'moment';
 
 const daysOfTheWeek = [
   { key: 'monday', text: 'Monday', value: '1' },
@@ -153,7 +150,7 @@ const ScheduleStudentForm = ({
                name='price'
                onChange={handleInputChange}
              />
-             
+
            </Modal.Content>
            <Modal.Actions>
              <Button size='small' onClick={handleCancel}>

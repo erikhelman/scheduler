@@ -26,6 +26,7 @@ class AllUsersPage extends React.Component {
 
   handleCheckChange = (e, { value }) => {
     this.setState({ checkValue: value });
+    
   }
 
   componentDidMount () {

@@ -17,7 +17,6 @@ class ReschedulePage extends React.Component {
       sessionEndDate: null,
       notice: 0,
       studentId: '',
-      classes: [],
       selectedClass: '',
       students: []
     };

@@ -101,6 +101,13 @@ class MainPage extends React.Component {
           'calendar',
           'AllClassesPage'
         ],
+        [
+          'Create Schedule',
+          'createSchedule',
+          '/main/create_schedule',
+          'calendar',
+          'CreateSchedulePage'
+        ],
       ]
       menu = [...menu, ...items];
       this.setState({menuItems: menu})

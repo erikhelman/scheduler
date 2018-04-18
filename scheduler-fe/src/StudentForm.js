@@ -1,6 +1,6 @@
 import React from 'react';
 import Datepicker from 'react-datepicker';
-import { Form, Segment, Popup, Header, Icon, Container, Button, Rail, Divider } from 'semantic-ui-react';
+import { Form, Segment, Header, Container, Button, Rail } from 'semantic-ui-react';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const gender = [

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Rail, Divider, Message, Form, Button, Segment, Container, Header } from 'semantic-ui-react';
+import { Message, Form, Button, Segment, Container, Header } from 'semantic-ui-react';
 import moment from 'moment';
 
 const PaymentForm = ({
